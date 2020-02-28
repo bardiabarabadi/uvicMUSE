@@ -1,17 +1,15 @@
 
-[![DOI](https://zenodo.org/badge/80209610.svg)](https://zenodo.org/badge/latestdoi/80209610)
-
 # Red Muse
 
 A Python package for streaming (on LSL and UDP), visualizing, and recording EEG data from the Muse 2016 headband. 
 
-![Blinks](blinks.png)
+![Blinks](BlinkSample.png)
 
 ## Requirements
 
 The code relies on [pygatt](https://github.com/peplin/pygatt) or [BlueMuse](https://github.com/kowalej/BlueMuse/tree/master/Dist) for BLE communication and works differently on different operating systems.
 
-- Windows: On Windows 10, we recommend using a BLED112 dongle and Muse LSL's bgapi backend (`muselsl stream --backend bgapi`).
+- Windows: On Windows 10, we recommend using a BLED112 dongle and RedMuse's bgapi backend (`muselsl stream --backend bgapi`).
 - Mac: On Mac, a **BLED112 dongle is required**. The bgapi backend is required and will be used by default when running RedMuse from the command line
 - Linux: No dongle required. However, you may need to run a command to enable root-level access to bluetooth hardware (see [Common Issues](#linux)). The pygatt backend is required and will be used by default from the command line.
 
@@ -33,7 +31,7 @@ Install RedMuse with pip locally.
 
 ### Setting Up a Stream
 
-The easiest way to get Muse data is to use Muse LSL directly from the command line. Use the `-h` flag to get a comprehensive list of all commands and options. Also, use `-b bgapi` for windows
+The easiest way to get Muse data is to use muselsl directly from the command line. Use the `-h` flag to get a comprehensive list of all commands and options. Also, use `-b bgapi` for windows
 
 To print a list of available muses:
 
@@ -51,29 +49,32 @@ You can also directly pass the MAC address of your Muse. This provides the benef
 
     $ muselsl stream --address YOUR_DEVICE_ADDRESS
 
-### Sending a Stream to MATLAB
+### Sending a Stream over UDP
+
+To stream data to a UDP socket you need to specify the address and port number. Default values are shown below. use `-b bgapi` for Windows.
 
 To print a list of available muses:
 
     $ muselsl list
 
-To begin an LSL stream from the first available Muse:
+To begin an LSL stream from the first available Muse over UDP:
 
-    $ muselsl matlab  
+    $ muselsl udp_stream --interface localhost --port 9216
+    $ muselsl upd_stream -i localhost -t 9216
 
 To connect to a specific Muse you can pass the name of the device as an argument. Device names can be found on the inside of the left earpiece (e.g. Muse-41D2):
 
-    $ muselsl matlab --name YOUR_DEVICE_NAME
+    $ muselsl upd_stream --name YOUR_DEVICE_NAME
 
 You can also directly pass the MAC address of your Muse. This provides the benefit of bypassing the device discovery step and can make connecting to devices quicker and more reliable:
 
-    $ muselsl matlab --address YOUR_DEVICE_ADDRESS
+    $ muselsl upd_stream --address YOUR_DEVICE_ADDRESS
 
 ### Working with Streaming Data
 
-Once an LSL stream is created, you have access to the following commands.
+Once an LSL stream is created, you have access to the following commands. You can also monitor the data by running **_plot_UPD.m_**. Make sure to set address and port for the UDP in the .m file.
 
-*Note: the process running the `stream` command must be kept alive in order to maintain the LSL stream. These following commands should be run in another terminal or second process*
+*Note: the process running the `stream` or stream command must be kept alive in order to maintain the LSL stream. These following commands should be run in another terminal or second process. *
 
 To view data:
 
@@ -94,49 +95,6 @@ Alternatively, you can record data directly without using LSL through the follow
     $ muselsl record_direct --duration 60
 
 _Note: direct recording does not allow 'Markers' data to be recorded_
-
-## Running Experiments
-
-Muse LSL was designed so that the Muse could be used to run a number of classic EEG experiments, including the [P300 event-related potential](http://alexandre.barachant.org/blog/2017/02/05/P300-with-muse.html) and the SSVEP and SSAEP evoked potentials.
-
-The code to perform these experiments is still available, but is now maintained in the [EEG Notebooks](https://github.com/neurotechx/eeg-notebooks) repository by the [NeuroTechX](https://neurotechx.com) community.
-
-## Usage as a Library
-
-If you want to integrate Muse LSL into your own Python project, you can import and use its functions as you would any Python library. Examples are available in the `examples` folder:
-
-```Python
-from muselsl import stream, list_muses
-
-muses = list_muses()
-stream(muses[0]['address'])
-
-# Note: Streaming is synchronous, so code here will not execute until after the stream has been closed
-print('Stream has ended')
-```
-
-## Alternate Data Types
-
-In addition to EEG, the Muse also provides data from an accelerometer, gyroscope, and, in the case of the Muse 2, a photoplethysmography (PPG) sensor. These data types can be enabled via command line arguments or by passing the correct parameters to the `stream` function. Once enabled, PPG, accelerometer, and gyroscope data will streamed in their own separate LSL streams named "PPG", "ACC", and "GYRO", respectively.
-
-To stream data from all sensors in a Muse 2 from the command line:
-
-    muselsl stream --ppg --acc --gyro
-
-As a library function:
-
-```Python
-from muselsl import stream, list_muses
-
-muses = list_muses()
-stream(muses[0]['address'], ppg_enabled=True, acc_enabled=True, gyro_enabled=True)
-```
-
-To record data from an alternate data source:
-
-    muselsl record --type ACC
-
-*Note: The record process will only record from one data type at a time. However, multiple terminals or processes can be used to record from multiple data types simultaneously*
 
 ## What is LSL?
 
@@ -170,25 +128,17 @@ Lab Streaming Layer or LSL is a system designed to unify the collection of time 
 
 5.  `'RuntimeError: could not create stream outlet'` (Linux)
 
-- This appears to be due to Linux-specific issues with the newest version of pylsl. Ensure that you have pylsl 1.10.5 installed in the environment in which you are trying to run Muse LSL
+- This appears to be due to Linux-specific issues with the newest version of pylsl. Ensure that you have pylsl 1.10.5 installed in the environment in which you are trying to run RedMuse
 
-## Citing muse-lsl
+## Citing red-muse
 
 ```
 @misc{muse-lsl,
-  author       = {Alexandre Barachant and
-                  Dano Morrison and
-                  Hubert Banville and
-                  Jason Kowaleski and
-                  Uri Shaked and
-                  Sylvain Chevallier and
-                  Juan Jesús Torre Tresols},
-  title        = {muse-lsl},
-  month        = may,
-  year         = 2019,
-  doi          = {10.5281/zenodo.3228861},
-  url          = {https://doi.org/10.5281/zenodo.3228861}
+  author       = {Bardia Barabadi},
+  title        = {red-muse},
+  month        = feburary,
+  year         = 2020,
+  doi          = {},
+  url          = {}
 }
 ```
-
-> Alexandre Barachant, Dano Morrison, Hubert Banville, Jason Kowaleski, Uri Shaked, Sylvain Chevallier, & Juan Jesús Torre Tresols. (2019, May 25). muse-lsl (Version v2.0.2). Zenodo. http://doi.org/10.5281/zenodo.3228861

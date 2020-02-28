@@ -2,6 +2,7 @@ from functools import partial
 from time import time, sleep
 import socket
 from pylsl import StreamInfo, StreamOutlet
+import struct
 import sys
 # from constants import AUTO_DISCONNECT_DELAY, \
 #     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK, \
@@ -18,9 +19,20 @@ from .constants import AUTO_DISCONNECT_DELAY, \
 from .muse import Muse
 from .stream import find_muse
 
+prv_ts = 0
+
+def isDataValid(data, timestamps):
+    if timestamps == 0.0:
+        return False
+
+    for i in range(data.shape[0]):
+        if data[i] == 0.0:
+            return False
+    return True
+
 
 # Begins UPD stream(s) from a Muse with a given address with data sources determined by arguments
-def udp_stream(address, backend='bgapi', interface=None, name=None, ppg_enabled=False, acc_enabled=False,
+def udp_stream(address, backend='bgapi', udp_ip='localhost', name=None, ppg_enabled=False, acc_enabled=False,
                gyro_enabled=False, eeg_disabled=False, udp_port=102, ):
     if not address:
         found_muse = find_muse(name)
@@ -88,12 +100,20 @@ def udp_stream(address, backend='bgapi', interface=None, name=None, ppg_enabled=
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+
     def push(data, timestamps, outlet):
+
+        global prv_ts
         for ii in range(data.shape[1]):
-            MSG = str(data[0, ii]) + ', ' + str(data[1, ii]) + ', ' + str(data[2, ii]) + ', ' + \
-                  str(data[3, ii]) + ', ' + str(data[4, ii]) + ', ' + str(timestamps[ii])
+            if not isDataValid(data[:, ii], timestamps[ii]):
+                continue
+            MSG = struct.pack('ffffff', data[0, ii],
+                              data[1, ii], data[2, ii], data[3, ii], data[4, ii], 100 * (timestamps[ii] - prv_ts))
+
+            prv_ts = timestamps[ii]
+
             print(MSG)
-            sock.sendto(MSG.encode(), ('localhost', udp_port))  # TODO: Replace with TCP/UDP send
+            sock.sendto(MSG, (udp_ip, udp_port))  # TODO: Replace with TCP/UDP send
             # outlet.push_sample(data[:, ii], timestamps[ii])
 
     push_eeg = partial(push, outlet=eeg_outlet) if not eeg_disabled else None
@@ -107,7 +127,7 @@ def udp_stream(address, backend='bgapi', interface=None, name=None, ppg_enabled=
 
     muse = Muse(address=address, callback_eeg=push_eeg, callback_ppg=push_ppg, callback_acc=push_acc,
                 callback_gyro=push_gyro,
-                backend=backend, interface=interface, name=name)
+                backend=backend, interface=None, name=name)
 
     didConnect = muse.connect()
 
@@ -129,7 +149,7 @@ def udp_stream(address, backend='bgapi', interface=None, name=None, ppg_enabled=
             except KeyboardInterrupt:
                 muse.stop()
                 muse.disconnect()
-                my_socket.close()
+                sock.close()
                 break
 
         print('Disconnected.')

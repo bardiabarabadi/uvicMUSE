@@ -64,8 +64,8 @@ class CLI:
                             dest="backend", type=str, default="bgapi",
                             help="BLE backend to use. Can be auto, bluemuse, gatt or bgapi.")
         parser.add_argument("-i", "--interface",
-                            dest="interface", type=str, default=None,
-                            help="The interface to use, 'hci0' for gatt or a com port for bgapi.")
+                            dest="interface", type=str, default='localhost',
+                            help="The interface to use, 'hci0' for gatt or a udp port for udp stream and bgapi.")
         parser.add_argument("-p", "--ppg",
                             default=False, action="store_true", help="Include PPG data")
         parser.add_argument("-c", "--acc",
