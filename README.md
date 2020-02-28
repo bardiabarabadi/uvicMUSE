@@ -1,9 +1,9 @@
 
 [![DOI](https://zenodo.org/badge/80209610.svg)](https://zenodo.org/badge/latestdoi/80209610)
 
-# Muse LSL
+# Red Muse
 
-A Python package for streaming, visualizing, and recording EEG data from the Muse 2016 headband.
+A Python package for streaming (on LSL and UDP), visualizing, and recording EEG data from the Muse 2016 headband. 
 
 ![Blinks](blinks.png)
 
@@ -11,27 +11,29 @@ A Python package for streaming, visualizing, and recording EEG data from the Mus
 
 The code relies on [pygatt](https://github.com/peplin/pygatt) or [BlueMuse](https://github.com/kowalej/BlueMuse/tree/master/Dist) for BLE communication and works differently on different operating systems.
 
-- Windows: On Windows 10, we recommend installing [BlueMuse](https://github.com/kowalej/BlueMuse/tree/master/Dist) and using its GUI to discover and connect to Muse devices. Alternatively, if you have a BLED112 dongle you can try Muse LSL's bgapi backend (`muselsl stream --backend bgapi`).
-- Mac: On Mac, a **BLED112 dongle is required**. The bgapi backend is required and will be used by default when running Muse LSL from the command line
-- Linux: No dongle required. However, you may need to run a command to enable root-level access to bluetooth hardware (see [Common Issues](#linux)). The pygatt backend is required and will be used by default from the command line. and make sure to read the 
+- Windows: On Windows 10, we recommend using a BLED112 dongle and Muse LSL's bgapi backend (`muselsl stream --backend bgapi`).
+- Mac: On Mac, a **BLED112 dongle is required**. The bgapi backend is required and will be used by default when running RedMuse from the command line
+- Linux: No dongle required. However, you may need to run a command to enable root-level access to bluetooth hardware (see [Common Issues](#linux)). The pygatt backend is required and will be used by default from the command line.
 
 **Compatible with Python 2.7 and Python 3.x**
 
-**Only compatible with Muse 2 and Muse 2016**
+**Only compatible with Muse 2 and Muse 2016 (Models: MU-02 and MU-03)**
 
-_Note: if you run into any issues, first check out out [Common Issues](#common-issues) and then the [Issues](https://github.com/alexandrebarachant/muse-lsl/issues) section of this repository_
+_Note: if you run into any issues, first check out out [Common Issues](#common-issues) and then the Issues section of this repository_
 
 ## Getting Started
 
 ### Installation
 
-Install Muse LSL with pip
+Install RedMuse with pip locally. 
 
-    pip install muselsl
+    git clone https://github.com/bardiabarabadi/RedMuse.git
+    cd RedMuse
+    pip install .
 
 ### Setting Up a Stream
 
-On Windows 10, we recommend using the [BlueMuse](https://github.com/kowalej/BlueMuse/tree/master/Dist) GUI to set up an LSL stream. On Mac and Linux, the easiest way to get Muse data is to use Muse LSL directly from the command line. Use the `-h` flag to get a comprehensive list of all commands and options.
+The easiest way to get Muse data is to use Muse LSL directly from the command line. Use the `-h` flag to get a comprehensive list of all commands and options. Also, use `-b bgapi` for windows
 
 To print a list of available muses:
 
@@ -48,6 +50,24 @@ To connect to a specific Muse you can pass the name of the device as an argument
 You can also directly pass the MAC address of your Muse. This provides the benefit of bypassing the device discovery step and can make connecting to devices quicker and more reliable:
 
     $ muselsl stream --address YOUR_DEVICE_ADDRESS
+
+### Sending a Stream to MATLAB
+
+To print a list of available muses:
+
+    $ muselsl list
+
+To begin an LSL stream from the first available Muse:
+
+    $ muselsl matlab  
+
+To connect to a specific Muse you can pass the name of the device as an argument. Device names can be found on the inside of the left earpiece (e.g. Muse-41D2):
+
+    $ muselsl matlab --name YOUR_DEVICE_NAME
+
+You can also directly pass the MAC address of your Muse. This provides the benefit of bypassing the device discovery step and can make connecting to devices quicker and more reliable:
+
+    $ muselsl matlab --address YOUR_DEVICE_ADDRESS
 
 ### Working with Streaming Data
 

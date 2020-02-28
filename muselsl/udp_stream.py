@@ -1,82 +1,34 @@
-from time import time, sleep
-from pylsl import StreamInfo, StreamOutlet
 from functools import partial
-import pygatt
-import subprocess
-from sys import platform
-# import helper
-# from muse import Muse
-# from constants import MUSE_SCAN_TIMEOUT, AUTO_DISCONNECT_DELAY,  \
-#     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK,  \
+from time import time, sleep
+import socket
+from pylsl import StreamInfo, StreamOutlet
+import sys
+# from constants import AUTO_DISCONNECT_DELAY, \
+#     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK, \
 #     MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE, LSL_PPG_CHUNK, \
 #     MUSE_NB_ACC_CHANNELS, MUSE_SAMPLING_ACC_RATE, LSL_ACC_CHUNK, \
 #     MUSE_NB_GYRO_CHANNELS, MUSE_SAMPLING_GYRO_RATE, LSL_GYRO_CHUNK
-
-
-from . import helper
-from .muse import Muse
-from .constants import MUSE_SCAN_TIMEOUT, AUTO_DISCONNECT_DELAY,  \
-    MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK,  \
+# from muse import Muse
+# from stream import find_muse
+from .constants import AUTO_DISCONNECT_DELAY, \
+    MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK, \
     MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE, LSL_PPG_CHUNK, \
     MUSE_NB_ACC_CHANNELS, MUSE_SAMPLING_ACC_RATE, LSL_ACC_CHUNK, \
     MUSE_NB_GYRO_CHANNELS, MUSE_SAMPLING_GYRO_RATE, LSL_GYRO_CHUNK
-
-# Returns a list of available Muse devices.
-def list_muses(backend='bgapi', interface=None):
-    backend = helper.resolve_backend(backend)
-
-    if backend == 'gatt':
-        interface = interface or 'hci0'
-        adapter = pygatt.GATTToolBackend(interface)
-    elif backend == 'bluemuse':
-        print('Starting BlueMuse, see BlueMuse window for interactive list of devices.')
-        subprocess.call('start bluemuse:', shell=True)
-        return
-    else:
-        adapter = pygatt.BGAPIBackend(serial_port=interface)
-
-    adapter.start()
-    print('Searching for Muses, this may take up to 10 seconds...')
-    devices = adapter.scan(timeout=MUSE_SCAN_TIMEOUT)
-    adapter.stop()
-    muses = []
-
-    for device in devices:
-        if device['name'] and 'Muse' in device['name']:
-            muses = muses + [device]
-
-    if(muses):
-        for muse in muses:
-            print('Found device %s, MAC Address %s' %
-                  (muse['name'], muse['address']))
-    else:
-        print('No Muses found.')
-
-    return muses
+from .muse import Muse
+from .stream import find_muse
 
 
-# Returns the address of the Muse with the name provided, otherwise returns address of first available Muse.
-def find_muse(name=None):
-    muses = list_muses()
-    if name:
-        for muse in muses:
-            if muse['name'] == name:
-                return muse
-    elif muses:
-        return muses[0]
-
-
-# Begins LSL stream(s) from a Muse with a given address with data sources determined by arguments
-def stream(address, backend='auto', interface=None, name=None, ppg_enabled=False, acc_enabled=False, gyro_enabled=False, eeg_disabled=False,):
-    bluemuse = backend == 'bluemuse'
-    if not bluemuse:
-        if not address:
-            found_muse = find_muse(name)
-            if not found_muse:
-                return
-            else:
-                address = found_muse['address']
-                name = found_muse['name']
+# Begins UPD stream(s) from a Muse with a given address with data sources determined by arguments
+def udp_stream(address, backend='bgapi', interface=None, name=None, ppg_enabled=False, acc_enabled=False,
+               gyro_enabled=False, eeg_disabled=False, udp_port=102, ):
+    if not address:
+        found_muse = find_muse(name)
+        if not found_muse:
+            return
+        else:
+            address = found_muse['address']
+            name = found_muse['name']
 
     if not eeg_disabled:
         eeg_info = StreamInfo('Muse', 'EEG', MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, 'float32',
@@ -90,7 +42,7 @@ def stream(address, backend='auto', interface=None, name=None, ppg_enabled=False
                 .append_child_value("unit", "microvolts") \
                 .append_child_value("type", "EEG")
 
-        eeg_outlet = StreamOutlet(eeg_info, LSL_EEG_CHUNK)
+        eeg_outlet = StreamOutlet(eeg_info, 1)
 
     if ppg_enabled:
         ppg_info = StreamInfo('Muse', 'PPG', MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE,
@@ -134,9 +86,15 @@ def stream(address, backend='auto', interface=None, name=None, ppg_enabled=False
 
         gyro_outlet = StreamOutlet(gyro_info, LSL_GYRO_CHUNK)
 
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
     def push(data, timestamps, outlet):
         for ii in range(data.shape[1]):
-            outlet.push_sample(data[:, ii], timestamps[ii])
+            MSG = str(data[0, ii]) + ', ' + str(data[1, ii]) + ', ' + str(data[2, ii]) + ', ' + \
+                  str(data[3, ii]) + ', ' + str(data[4, ii]) + ', ' + str(timestamps[ii])
+            print(MSG)
+            sock.sendto(MSG.encode(), ('localhost', udp_port))  # TODO: Replace with TCP/UDP send
+            # outlet.push_sample(data[:, ii], timestamps[ii])
 
     push_eeg = partial(push, outlet=eeg_outlet) if not eeg_disabled else None
     push_ppg = partial(push, outlet=ppg_outlet) if ppg_enabled else None
@@ -147,23 +105,13 @@ def stream(address, backend='auto', interface=None, name=None, ppg_enabled=False
         print('Stream initiation failed: At least one data source must be enabled.')
         return
 
-    muse = Muse(address=address, callback_eeg=push_eeg, callback_ppg=push_ppg, callback_acc=push_acc, callback_gyro=push_gyro,
+    muse = Muse(address=address, callback_eeg=push_eeg, callback_ppg=push_ppg, callback_acc=push_acc,
+                callback_gyro=push_gyro,
                 backend=backend, interface=interface, name=name)
-
-    if(bluemuse):
-        muse.connect()
-        if not address and not name:
-            print('Targeting first device BlueMuse discovers...')
-        else:
-            print('Targeting device: '
-                  + ':'.join(filter(None, [name, address])) + '...')
-        print('\n*BlueMuse will auto connect and stream when the device is found. \n*You can also use the BlueMuse interface to manage your stream(s).')
-        muse.start()
-        return
 
     didConnect = muse.connect()
 
-    if(didConnect):
+    if (didConnect):
         print('Connected.')
         muse.start()
 
@@ -181,6 +129,7 @@ def stream(address, backend='auto', interface=None, name=None, ppg_enabled=False
             except KeyboardInterrupt:
                 muse.stop()
                 muse.disconnect()
+                my_socket.close()
                 break
 
         print('Disconnected.')

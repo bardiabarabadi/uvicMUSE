@@ -4,7 +4,9 @@ import numpy as np
 from time import time, sleep
 from sys import platform
 import subprocess
+# import helper
 from . import helper
+# from constants import *
 from .constants import *
 
 
@@ -47,7 +49,7 @@ class Muse():
 
         self.backend = helper.resolve_backend(backend)
 
-    def connect(self, interface=None, backend='auto'):
+    def connect(self):
         """Connect to the device"""
         try:
             if self.backend == 'bluemuse':

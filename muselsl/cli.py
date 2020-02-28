@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys
 import argparse
+from .udp_stream import *
 
 
 class CLI:
@@ -12,7 +13,7 @@ class CLI:
         parser = argparse.ArgumentParser(
             description='List available Muse devices.')
         parser.add_argument("-b", "--backend",
-                            dest="backend", type=str, default="auto",
+                            dest="backend", type=str, default="bgapi",
                             help="BLE backend to use. Can be auto, bluemuse, gatt or bgapi.")
         parser.add_argument("-i", "--interface",
                             dest="interface", type=str, default=None,
@@ -31,7 +32,7 @@ class CLI:
                             dest="name", type=str, default=None,
                             help="Name of the device.")
         parser.add_argument("-b", "--backend",
-                            dest="backend", type=str, default="auto",
+                            dest="backend", type=str, default="bgapi",
                             help="BLE backend to use. Can be auto, bluemuse, gatt or bgapi.")
         parser.add_argument("-i", "--interface",
                             dest="interface", type=str, default=None,
@@ -49,6 +50,39 @@ class CLI:
 
         stream(args.address, args.backend,
                args.interface, args.name, args.ppg, args.acc, args.gyro, args.disable_eeg)
+
+    def udp_stream(self):
+        parser = argparse.ArgumentParser(
+            description='Start an LSL stream from Muse headset.')
+        parser.add_argument("-a", "--address",
+                            dest="address", type=str, default=None,
+                            help="Device MAC address.")
+        parser.add_argument("-n", "--name",
+                            dest="name", type=str, default=None,
+                            help="Name of the device.")
+        parser.add_argument("-b", "--backend",
+                            dest="backend", type=str, default="bgapi",
+                            help="BLE backend to use. Can be auto, bluemuse, gatt or bgapi.")
+        parser.add_argument("-i", "--interface",
+                            dest="interface", type=str, default=None,
+                            help="The interface to use, 'hci0' for gatt or a com port for bgapi.")
+        parser.add_argument("-p", "--ppg",
+                            default=False, action="store_true", help="Include PPG data")
+        parser.add_argument("-c", "--acc",
+                            default=False, action="store_true", help="Include accelerometer data")
+        parser.add_argument("-g", "--gyro",
+                            default=False, action="store_true", help="Include gyroscope data")
+        parser.add_argument('-d', '--disable-eeg', dest='disable_eeg', default=False,
+                            action='store_true', help="Disable EEG data")
+
+        parser.add_argument("-t", "--port",
+                            dest="udp_port", type=int, default=10000,
+                            help="UDP port")
+
+        args = parser.parse_args(sys.argv[2:])
+
+        udp_stream(args.address, args.backend,
+                   args.interface, args.name, args.ppg, args.acc, args.gyro, args.disable_eeg, args.udp_port)
 
     def record(self):
         parser = argparse.ArgumentParser(

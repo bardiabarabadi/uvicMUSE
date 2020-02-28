@@ -23,14 +23,14 @@ copy_docs()
 long_description = get_long_description()
 
 setup(
-    name="muselsl",
-    version="2.0.2",
-    description="Stream and visualize EEG data from the Muse headset.",
-    keywords="muse lsl eeg ble neuroscience",
-    url="https://github.com/alexandrebarachant/muse-lsl/",
-    author="Alexandre Barachant",
-    author_email="alexandre.barachant@gmail.com",
-    license="BSD (3-clause)",
+    name="redmuse",
+    version="1.0.0",
+    description="Stream and visualize EEG data from the Muse headset and MATLAB.",
+    keywords="muse lsl eeg ble neuroscience matlab",
+    url="",
+    author="",
+    author_email="",
+    license="",
     entry_points={"console_scripts": ["muselsl=muselsl.__main__:main"]},
     packages=find_packages(),
     package_data={"muselsl": ["docs/README.md", "docs/examples/*"]},
