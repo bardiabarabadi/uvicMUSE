@@ -133,7 +133,7 @@ Lab Streaming Layer or LSL is a system designed to unify the collection of time 
 ## Citing red-muse
 
 ```
-@misc{muse-lsl,
+@misc{red-muse,
   author       = {Bardia Barabadi},
   title        = {red-muse},
   month        = feburary,
