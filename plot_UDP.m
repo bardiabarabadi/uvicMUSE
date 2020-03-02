@@ -1,21 +1,16 @@
-clear all
+clear
+clc
 close all
+figure 
 
 dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'delete(gcbf)');
 
-PORT = 27;
+PORT =1004;
 udp_sock = udp('localhost',PORT, 'localport', PORT);
 fopen (udp_sock);
 
 display_arr = ones ([6,1000]);
 
-ok=0;
-TP9=0;
-AF7=0;
-AF8=0;
-TP10=0;
-TS=0;
-RAUX=0;
 A = zeros([6,1]);
 prv_A = 0;
 
@@ -57,29 +52,17 @@ hold (p_23, 'on')
 pl_6 = plot(p_23, 1:size(x,2), x);
 title('Time Stamps per sample');
 
-
-pl_1.XDataSource = 'x';
-pl_2.XDataSource = 'x';
-pl_3.XDataSource = 'x';
-pl_4.XDataSource = 'x';
-pl_5.XDataSource = 'x';
-
-pl_1.YDataSource = 'TP9';
-pl_2.YDataSource = 'AF7';
-pl_3.YDataSource = 'AF8';
-pl_4.YDataSource = 'TP10';
-pl_5.YDataSource = 'RAUX';
-pl_6.YDataSource = 'x';
-
-
 i=0;
 udp_sock.ByteOrder = 'littleEndian';
+
+flushinput(udp_sock)
+
+D = parallel.pool.DataQueue;
+D.afterEach(@(display_arr) updateSurface(pl_1,pl_2,pl_3,pl_4,pl_5,pl_6, display_arr));
+
 while (ishandle(dialogBox))
     if udp_sock.BytesAvailable ~= 0
-        
         i=i+1;
-        
-        
         A = fread(udp_sock, 6, 'single');
         if size(A,1) ~= 6
             continue
@@ -90,16 +73,8 @@ while (ishandle(dialogBox))
         display_arr(:,end) = A;
         display_arr(6,end)=display_arr(6,end)+display_arr(6,end-1);
         
-        x = display_arr(6,:);
-        TP9 = display_arr(1,:);
-        AF7 = display_arr(2,:);
-        AF8 = display_arr(3,:);
-        TP10 = display_arr(4,:);
-        RAUX = display_arr(5,:);
-        
         if (~mod(i,300)) 
-            refreshdata
-            drawnow
+            send(D, display_arr);
         end
     else
         pause(0.2)

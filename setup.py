@@ -11,7 +11,7 @@ def get_long_description():
 
 
 def copy_docs():
-    docs_dir = "muselsl/docs"
+    docs_dir = "redmuse/docs"
     if not os.path.exists(docs_dir):
         os.makedirs(docs_dir)
 
@@ -25,15 +25,15 @@ long_description = get_long_description()
 setup(
     name="redmuse",
     version="1.0.0",
-    description="Stream and visualize EEG data from the Muse headset and MATLAB.",
-    keywords="muse lsl eeg ble neuroscience matlab",
+    description="Stream and visualize EEG data from the Muse headset.",
+    keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
     author="",
     author_email="",
     license="",
-    entry_points={"console_scripts": ["muselsl=muselsl.__main__:main"]},
+    entry_points={"console_scripts": ["redmuse=redmuse.__main__:main"]},
     packages=find_packages(),
-    package_data={"muselsl": ["docs/README.md", "docs/examples/*"]},
+    package_data={"redmuse": ["docs/README.md", "docs/examples/*"]},
     include_package_data=True,
     zip_safe=False,
     long_description=long_description,

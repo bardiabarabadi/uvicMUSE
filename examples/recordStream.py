@@ -3,7 +3,7 @@ Record from a Stream
 
 This example shows how to record data from an existing Muse LSL stream
 """
-from muselsl import record
+from redmuse import record
 
 if __name__ == "__main__":
 

@@ -5,8 +5,8 @@ from .cli import CLI
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Python package for streaming, recording, and visualizing EEG data from the Muse 2016 headset.',
-        usage='''muselsl <command> [<args>]
+        description='Python package for streaming and recording EEG data from the Muse 1&2 headset.',
+        usage='''redmuse <command> [<args>]
     Available commands:
     list        List available Muse devices.
                 -b --backend    BLE backend to use. can be auto, bluemuse, gatt or bgapi.
@@ -22,13 +22,16 @@ def main():
                 -g --gyro       Include gyroscope data
                 --disable-eeg   Disable EEG data
 
-    view     Visualize EEG data from an LSL stream.
-                -w --window     Window length to display in seconds.
-                -s --scale      Scale in uV.
-                -r --refresh    Refresh rate in seconds.
-                -f --figure     Window size.
-                -v --version    Viewer version (1 or 2) - 1 is the default stable version, 2 is in development (and takes no arguments).
-                -b --backend    Matplotlib backend to use. Default: TkAgg
+    stream      Start an LSL stream from Muse headset.
+                -a --address    Device MAC address.
+                -n --name       Device name (e.g. Muse-41D2).
+                -b --backend    BLE backend to use. can be auto, bluemuse, gatt or bgapi (Default).
+                -i --interface_port  The port for UDP socket. Default is localhost
+                -t --port       UDP port
+                -p --ppg        Include PPG data
+                -c --acc        Include accelerometer data
+                -g --gyro       Include gyroscope data
+                --disable-eeg   Disable EEG data
 
     record   Record EEG data from an LSL stream.
                 -d --duration   Duration of the recording in seconds.
@@ -58,5 +61,4 @@ def main():
 
 
 if __name__ == '__main__':
-    print('Matlab Streaming')
     main()

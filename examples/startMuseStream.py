@@ -4,7 +4,7 @@ Starting a Stream
 This example shows how to search for available Muses and
 create a new stream
 """
-from muselsl import stream, list_muses
+from redmuse import stream, list_muses
 
 if __name__ == "__main__":
 

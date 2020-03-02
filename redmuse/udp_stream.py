@@ -3,7 +3,6 @@ from time import time, sleep
 import socket
 from pylsl import StreamInfo, StreamOutlet
 import struct
-import sys
 # from constants import AUTO_DISCONNECT_DELAY, \
 #     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK, \
 #     MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE, LSL_PPG_CHUNK, \
@@ -20,6 +19,7 @@ from .muse import Muse
 from .stream import find_muse
 
 prv_ts = 0
+
 
 def isDataValid(data, timestamps):
     if timestamps == 0.0:
@@ -100,8 +100,7 @@ def udp_stream(address, backend='bgapi', udp_ip='localhost', name=None, ppg_enab
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-
-    def push(data, timestamps, outlet):
+    def push(data, timestamps, outlet, address=('localhost',101)):
 
         global prv_ts
         for ii in range(data.shape[1]):
@@ -113,13 +112,13 @@ def udp_stream(address, backend='bgapi', udp_ip='localhost', name=None, ppg_enab
             prv_ts = timestamps[ii]
 
             print(MSG)
-            sock.sendto(MSG, (udp_ip, udp_port))  # TODO: Replace with TCP/UDP send
+            outlet.sendto(MSG, address)  # TODO: Replace with TCP/UDP send
             # outlet.push_sample(data[:, ii], timestamps[ii])
 
-    push_eeg = partial(push, outlet=eeg_outlet) if not eeg_disabled else None
-    push_ppg = partial(push, outlet=ppg_outlet) if ppg_enabled else None
-    push_acc = partial(push, outlet=acc_outlet) if acc_enabled else None
-    push_gyro = partial(push, outlet=gyro_outlet) if gyro_enabled else None
+    push_eeg = partial(push, outlet=sock, address=(udp_ip, udp_port)) if not eeg_disabled else None
+    push_ppg = partial(push, outlet=sock, address=(udp_ip, udp_port)) if ppg_enabled else None
+    push_acc = partial(push, outlet=sock, address=(udp_ip, udp_port)) if acc_enabled else None
+    push_gyro = partial(push, outlet=sock, address=(udp_ip, udp_port)) if gyro_enabled else None
 
     if all(f is None for f in [push_eeg, push_ppg, push_acc, push_gyro]):
         print('Stream initiation failed: At least one data source must be enabled.')
@@ -129,9 +128,9 @@ def udp_stream(address, backend='bgapi', udp_ip='localhost', name=None, ppg_enab
                 callback_gyro=push_gyro,
                 backend=backend, interface=None, name=name)
 
-    didConnect = muse.connect()
+    did_connect = muse.connect()
 
-    if (didConnect):
+    if did_connect:
         print('Connected.')
         muse.start()
 
