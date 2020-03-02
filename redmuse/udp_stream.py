@@ -111,7 +111,7 @@ def udp_stream(address, backend='bgapi', udp_ip='localhost', name=None, ppg_enab
 
             prv_ts = timestamps[ii]
 
-            print(MSG)
+            #print(MSG)
             outlet.sendto(MSG, address)  # TODO: Replace with TCP/UDP send
             # outlet.push_sample(data[:, ii], timestamps[ii])
 

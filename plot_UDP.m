@@ -5,11 +5,11 @@ figure
 
 dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'delete(gcbf)');
 
-PORT =1004;
+PORT =1024;
 udp_sock = udp('localhost',PORT, 'localport', PORT);
 fopen (udp_sock);
 
-display_arr = ones ([6,1000]);
+display_arr = ones ([6,1500]);
 
 A = zeros([6,1]);
 prv_A = 0;
@@ -63,19 +63,26 @@ D.afterEach(@(display_arr) updateSurface(pl_1,pl_2,pl_3,pl_4,pl_5,pl_6, display_
 while (ishandle(dialogBox))
     if udp_sock.BytesAvailable ~= 0
         i=i+1;
+        
+        
         A = fread(udp_sock, 6, 'single');
         if size(A,1) ~= 6
             continue
         end
+        
         
         prv_A = A(6);
         display_arr(:,1:end-1) = display_arr(:,2:end);
         display_arr(:,end) = A;
         display_arr(6,end)=display_arr(6,end)+display_arr(6,end-1);
         
-        if (~mod(i,300)) 
+        if (~mod(i,150)) 
             send(D, display_arr);
         end
+        
+        
+        
+        
     else
         pause(0.2)
     end
