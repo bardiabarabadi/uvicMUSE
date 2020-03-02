@@ -25,7 +25,7 @@ def isDataValid(data, timestamps):
     if timestamps == 0.0:
         return False
 
-    for i in range(data.shape[0]):
+    for i in range(data.shape[0]-1):
         if data[i] == 0.0:
             return False
     return True
@@ -104,14 +104,17 @@ def udp_stream(address, backend='bgapi', udp_ip='localhost', name=None, ppg_enab
 
         global prv_ts
         for ii in range(data.shape[1]):
-            if not isDataValid(data[:, ii], timestamps[ii]):
-                continue
+            
             MSG = struct.pack('ffffff', data[0, ii],
                               data[1, ii], data[2, ii], data[3, ii], data[4, ii], 100 * (timestamps[ii] - prv_ts))
 
             prv_ts = timestamps[ii]
 
-            #print(MSG)
+            #print(data[0, ii],
+            #                  data[1, ii], data[2, ii], data[3, ii], data[4, ii], timestamps[ii])
+            #print(data.shape)
+            if not isDataValid(data[:, ii], timestamps[ii]):
+                continue
             outlet.sendto(MSG, address)  # TODO: Replace with TCP/UDP send
             # outlet.push_sample(data[:, ii], timestamps[ii])
 
