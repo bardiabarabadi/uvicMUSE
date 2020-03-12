@@ -5,7 +5,7 @@ figure
 
 dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'delete(gcbf)');
 
-PORT =1024;
+PORT =300;
 udp_sock = udp('localhost',PORT, 'localport', PORT);
 fopen (udp_sock);
 

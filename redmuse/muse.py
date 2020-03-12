@@ -2,7 +2,6 @@ import bitstring
 import pygatt
 import numpy as np
 from time import time, sleep
-from sys import platform
 import subprocess
 # import helper
 from . import helper
@@ -93,7 +92,7 @@ class Muse():
             return True
 
         except pygatt.exceptions.BLEError as error:
-            if("characteristic" in str(error)):
+            if ("characteristic" in str(error)):
                 self.ask_reset()
                 sleep(2)
                 self.device = self.adapter.connect(self.address)
@@ -515,7 +514,7 @@ class Muse():
 
             # timestamps are extrapolated backwards based on sampling rate and current time
             timestamps = self.reg_ppg_sample_rate[1] * \
-                idxs + self.reg_ppg_sample_rate[0]
+                         idxs + self.reg_ppg_sample_rate[0]
 
             # save last timestamp for disconnection timer
             self.last_timestamp = timestamps[-1]

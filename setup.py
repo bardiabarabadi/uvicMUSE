@@ -46,9 +46,10 @@ setup(
         "numpy",
         "seaborn",
         "pexpect",
+        "pillow",
+        "kivy",
     ] +
     (["pylsl==1.10.5"] if os.sys.platform.startswith("linux") else ["pylsl"]),
-    extras_require={"Viewer V2": ["mne", "vispy"]},
     classifiers=[
         # How mature is this project?  Common values are
         #   3 - Alpha
