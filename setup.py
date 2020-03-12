@@ -47,7 +47,7 @@ setup(
         "seaborn",
         "pexpect",
         "pillow",
-        "kivy",
+        "pygubu",
     ] +
     (["pylsl==1.10.5"] if os.sys.platform.startswith("linux") else ["pylsl"]),
     classifiers=[

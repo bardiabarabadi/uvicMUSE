@@ -322,3 +322,5 @@ def runGUI():
     root.title('RedMuse')
     app = HelloWorldApp(root)
     app.run()
+    root.withdraw()
+    root.destroy()
