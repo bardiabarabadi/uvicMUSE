@@ -82,7 +82,7 @@ class HelloWorldApp:
 
     def __init__(self, master):
         self.master = master
-        self.log = "Welcome to RedMuse"
+        self.log = "Welcome to UVicMUSE"
         self.muses = []
         self.sock = None
         self.muse = None
@@ -186,7 +186,7 @@ class HelloWorldApp:
                     .append_child_value("unit", "microvolts") \
                     .append_child_value("type", "EEG")
             self.muse = Muse(address=self.connected_address, callback_eeg=self.pushy, callback_ppg=None,
-                             callback_acc=None, callback_gyro=None, backend=self.backend, interface=None,
+                             callback_acc=None, callback_gyro=None, backend=self.backend, interface="/dev/ttyACM0",
                              name=self.muses[id_to_connect]['name'])
 
             self.did_connect = self.muse.connect()
@@ -319,7 +319,7 @@ def runGUI():
     root = Tk()
     root.withdraw()
 
-    root.title('RedMuse')
+    root.title('UVic MUSE')
     app = HelloWorldApp(root)
     app.run()
     root.withdraw()

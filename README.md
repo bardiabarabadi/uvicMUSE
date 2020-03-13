@@ -1,5 +1,5 @@
 
-# Red Muse
+# UVic MUSE
 
 A Python package for streaming (on LSL and UDP), visualizing, and recording EEG data from the Muse 2016 headband. 
 
@@ -9,8 +9,8 @@ A Python package for streaming (on LSL and UDP), visualizing, and recording EEG 
 
 The code relies on [pygatt](https://github.com/peplin/pygatt) for BLE communication and works differently on different operating systems.
 
-- Windows: On Windows 10, we recommend using a BLED112 dongle and RedMuse's bgapi backend (`redmuse stream --backend bgapi`).
-- Mac: On Mac, a **BLED112 dongle is required**. The bgapi backend is required and will be used by default when running RedMuse from the command line
+- Windows: On Windows 10, we recommend using a BLED112 dongle and UVicMUSE's bgapi backend (`uvicmuse stream --backend bgapi`).
+- Mac: On Mac, a **BLED112 dongle is required**. The bgapi backend is required and will be used by default when running UVicMUSE from the command line
 - Linux: No dongle required. However, you may need to run a command to enable root-level access to bluetooth hardware (see [Common Issues](#linux)). The pygatt backend is required and will be used by default from the command line.
 
 **Compatible with Python 2.7 and Python 3.x**
@@ -23,15 +23,15 @@ _Note: if you run into any issues, first check out out [Common Issues](#common-i
 
 ### Installation
 
-Install RedMuse with pip from github. 
+Install UVicMUSE with pip from github. 
 
-    pip install git+git://github.com/bardiabarabadi/RedMuse.git
+    pip install git+git://github.com/bardiabarabadi/UVicMUSE.git
 
 ### Sending a Stream over UDP
 
-Run redmuse and follow instructions on the GUI
+Run uvicmuse and follow instructions on the GUI
     
-    redmuse
+    uvicmuse
 
 ![GUI]()
 

@@ -11,7 +11,7 @@ def get_long_description():
 
 
 def copy_docs():
-    docs_dir = "redmuse/docs"
+    docs_dir = "uvicmuse/docs"
     if not os.path.exists(docs_dir):
         os.makedirs(docs_dir)
 
@@ -23,7 +23,7 @@ copy_docs()
 long_description = get_long_description()
 
 setup(
-    name="redmuse",
+    name="uvicmuse",
     version="1.0.0",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
@@ -31,9 +31,9 @@ setup(
     author="",
     author_email="",
     license="",
-    entry_points={"console_scripts": ["redmuse=redmuse.__main__:main"]},
+    entry_points={"console_scripts": ["uvicmuse=uvicmuse.__main__:main"]},
     packages=find_packages(),
-    package_data={"redmuse": ["docs/README.md", "docs/examples/*"]},
+    package_data={"uvicmuse": ["docs/README.md", "docs/examples/*"]},
     include_package_data=True,
     zip_safe=False,
     long_description=long_description,
@@ -48,6 +48,7 @@ setup(
         "pexpect",
         "pillow",
         "pygubu",
+        "tk"
     ] +
     (["pylsl==1.10.5"] if os.sys.platform.startswith("linux") else ["pylsl"]),
     classifiers=[
