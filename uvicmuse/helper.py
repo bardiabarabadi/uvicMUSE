@@ -1,15 +1,70 @@
 import platform
+import pygatt
+
+import helper
+
+
+# from . import helper
 
 def resolve_backend(backend):
-    if backend in ['auto', 'gatt', 'bgapi', 'bluemuse']:
+    if backend in ['auto', 'gatt', 'bgapi']:
         platformName = platform.system().lower()
         if backend == 'auto':
             if platformName == 'linux' or platformName == 'linux2':
                 backend = 'gatt'
             elif platformName == 'windows' and int(platform.version().replace('.', '')) >= 10015063:
-                backend = 'bluemuse'
+                backend = 'bgapi'
             else:
                 backend = 'bgapi'
         return backend
     else:
-        raise(ValueError('Backend must be one of: auto, gatt, bgapi, bluemuse.'))
+        raise (ValueError('Backend must be one of: auto, gatt, bgapi'))
+
+
+def find_muse(name=None):
+    muses = list_muses()
+    if name:
+        for muse in muses:
+            if muse['name'] == name:
+                return muse
+    elif muses:
+        return muses[0]
+
+
+def list_muses(backend='bgapi', interface=None):
+    backend = helper.resolve_backend(backend)
+
+    if backend == 'gatt':
+        interface = interface or 'hci0'
+        adapter = pygatt.GATTToolBackend(interface)
+    else:
+        adapter = pygatt.BGAPIBackend(serial_port=interface)
+
+    adapter.start()
+    print('Searching for Muses, this may take up to 10 seconds...                                 ')
+    devices = adapter.scan(timeout=8.5)
+    adapter.stop()
+    muses = []
+
+    for device in devices:
+        if device['name'] and 'Muse' in device['name']:
+            muses = muses + [device]
+
+    if muses:
+        for muse in muses:
+            print('Found device %s, MAC Address %s' %
+                  (muse['name'], muse['address']))
+    else:
+        print('No Muses found.')
+
+    return muses
+
+
+def is_data_valid(data, timestamps):
+    if timestamps == 0.0:
+        return False
+
+    for i in range(data.shape[0] - 1):
+        if data[i] == 0.0:
+            return False
+    return True

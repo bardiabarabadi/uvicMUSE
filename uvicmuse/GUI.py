@@ -2,22 +2,20 @@ import socket
 import struct
 
 from pylsl import StreamInfo
-import pygatt
 from functools import partial
 
-# import helper
-# from muse import Muse
-# from constants import MUSE_SCAN_TIMEOUT, AUTO_DISCONNECT_DELAY,  \
-#     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK,  \
-#     MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE, LSL_PPG_CHUNK, \
-#     MUSE_NB_ACC_CHANNELS, MUSE_SAMPLING_ACC_RATE, LSL_ACC_CHUNK, \
-#     MUSE_NB_GYRO_CHANNELS, MUSE_SAMPLING_GYRO_RATE, LSL_GYRO_CHUNK
-#
+from muse import Muse
+from constants import MUSE_SCAN_TIMEOUT, AUTO_DISCONNECT_DELAY, \
+    MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK, \
+    MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE, LSL_PPG_CHUNK, \
+    MUSE_NB_ACC_CHANNELS, MUSE_SAMPLING_ACC_RATE, LSL_ACC_CHUNK, \
+    MUSE_NB_GYRO_CHANNELS, MUSE_SAMPLING_GYRO_RATE, LSL_GYRO_CHUNK
+from Backend import Backend
 
-from . import helper
-from .constants import AUTO_DISCONNECT_DELAY, \
-    MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE
-from .muse import Muse
+# from .constants import AUTO_DISCONNECT_DELAY, \
+#     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE
+# from .muse import Muse
+# from .Backend import Backend
 
 from tkinter import ttk, font, messagebox
 import tkinter as tk
@@ -27,61 +25,11 @@ from PIL import ImageTk, Image
 import pygubu
 
 
-def is_data_valid(data, timestamps):
-    if timestamps == 0.0:
-        return False
-
-    for i in range(data.shape[0] - 1):
-        if data[i] == 0.0:
-            return False
-    return True
-
-
-def find_muse(name=None):
-    muses = list_muses()
-    if name:
-        for muse in muses:
-            if muse['name'] == name:
-                return muse
-    elif muses:
-        return muses[0]
-
-
-def list_muses(backend='bgapi', interface=None):
-    backend = helper.resolve_backend(backend)
-
-    if backend == 'gatt':
-        interface = interface or 'hci0'
-        adapter = pygatt.GATTToolBackend(interface)
-    elif backend == 'bluemuse':
-        return
-    else:
-        adapter = pygatt.BGAPIBackend(serial_port=interface)
-
-    adapter.start()
-    print('Searching for Muses, this may take up to 10 seconds...                                 ')
-    devices = adapter.scan(timeout=10.5)
-    adapter.stop()
-    muses = []
-
-    for device in devices:
-        if device['name'] and 'Muse' in device['name']:
-            muses = muses + [device]
-
-    if (muses):
-        for muse in muses:
-            print('Found device %s, MAC Address %s' %
-                  (muse['name'], muse['address']))
-    else:
-        print('No Muses found.')
-
-    return muses
-
-
 class HelloWorldApp:
 
     def __init__(self, master):
         self.master = master
+
         self.log = "Welcome to UVicMUSE"
         self.muses = []
         self.sock = None
@@ -89,7 +37,10 @@ class HelloWorldApp:
         self.did_connect = False
         self.udp_address = ()
         self.connected_address = ""
-        self.backend = 'bgapi'  # TODO: Get this from user
+        self.muse_backend = 'bgapi'  # TODO: Get this from user
+
+        self.backend = Backend(self.muse_backend)
+
         self.prv_ts = 0
         # 1: Create a builder
         self.builder = pygubu.Builder()
@@ -163,6 +114,7 @@ class HelloWorldApp:
         self.mainwindow.mainloop()
 
     def connect_callback(self):
+        self.backend.connect_btn_callback()
         id_to_connect = self.frame_list.listbox.curselection()
         if not id_to_connect:
             self.log_msg["text"] = 'Select one device from the list.                                '
@@ -186,7 +138,7 @@ class HelloWorldApp:
                     .append_child_value("unit", "microvolts") \
                     .append_child_value("type", "EEG")
             self.muse = Muse(address=self.connected_address, callback_eeg=self.pushy, callback_ppg=None,
-                             callback_acc=None, callback_gyro=None, backend=self.backend, interface="/dev/ttyACM0",
+                             callback_acc=None, callback_gyro=None, backend=self.muse_backend, interface="/dev/ttyACM0",
                              name=self.muses[id_to_connect]['name'])
 
             self.did_connect = self.muse.connect()
@@ -205,6 +157,7 @@ class HelloWorldApp:
                 self.UDP_send_btn.update_idletasks()
 
     def disconnect_callback(self):
+        self.backend.disconnect_btn_callback()
         if not self.did_connect:
             return
         self.muse.disconnect()
@@ -283,7 +236,7 @@ class HelloWorldApp:
         self.log_msg.update_idletasks()
 
     def refresh_callback(self):
-        # messagebox._show("Button Done", "The button clicked")
+
         self.log_msg.configure(text='Searching for MUSE devices...                                                ')
         self.log_msg.update_idletasks()
 
@@ -291,13 +244,13 @@ class HelloWorldApp:
         self.refresh_btn.configure(state=DISABLED)
         self.refresh_btn.update_idletasks()
 
-        self.muses = list_muses()
+        self.muses, succeed = self.backend.refresh_btn_callback()
 
         self.refresh_btn.configure(state=NORMAL)
         self.refresh_btn["text"] = "Refresh"
         self.refresh_btn.update_idletasks()
 
-        if len(self.muses) == 0:
+        if not succeed:
             self.log_msg["text"] = 'No MUSEs found...                                                           '
             self.log_msg.update_idletasks()
             size = self.frame_list.listbox.size()
@@ -309,8 +262,7 @@ class HelloWorldApp:
             size = self.frame_list.listbox.size()
             self.frame_list.listbox.delete(0, size)
             for i in range(len(self.muses)):
-                self.frame_list.listbox.insert(END, '[' + str(i) + ']: Name=' + self.muses[i]['name'] + ', Address=' +
-                                               self.muses[i]['address'])
+                self.frame_list.listbox.insert(END, self.muses[i])
             self.connect_btn.configure(state=NORMAL)
             self.connect_btn.update_idletasks()
 

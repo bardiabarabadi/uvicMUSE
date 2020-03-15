@@ -1,5 +1,5 @@
-# from GUI import runGUI
-from .GUI import runGUI
+from GUI import runGUI
+# from .GUI import runGUI
 
 
 def main():
