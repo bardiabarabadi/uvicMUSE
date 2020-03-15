@@ -4,18 +4,13 @@ import struct
 from pylsl import StreamInfo
 from functools import partial
 
-from muse import Muse
-from constants import MUSE_SCAN_TIMEOUT, AUTO_DISCONNECT_DELAY, \
+from uvicmuse.muse import Muse
+from uvicmuse.constants import MUSE_SCAN_TIMEOUT, AUTO_DISCONNECT_DELAY, \
     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, LSL_EEG_CHUNK, \
     MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE, LSL_PPG_CHUNK, \
     MUSE_NB_ACC_CHANNELS, MUSE_SAMPLING_ACC_RATE, LSL_ACC_CHUNK, \
     MUSE_NB_GYRO_CHANNELS, MUSE_SAMPLING_GYRO_RATE, LSL_GYRO_CHUNK
-from Backend import Backend
-
-# from .constants import AUTO_DISCONNECT_DELAY, \
-#     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE
-# from .muse import Muse
-# from .Backend import Backend
+from uvicmuse.Backend import Backend
 
 from tkinter import ttk, font, messagebox
 import tkinter as tk
@@ -114,34 +109,18 @@ class HelloWorldApp:
         self.mainwindow.mainloop()
 
     def connect_callback(self):
-        self.backend.connect_btn_callback()
         id_to_connect = self.frame_list.listbox.curselection()
         if not id_to_connect:
             self.log_msg["text"] = 'Select one device from the list.                                '
             self.log_msg.update_idletasks()
             return
         else:
-            id_to_connect = id_to_connect[0]
+            id_to_connect=id_to_connect[0]
+            self.backend.connect_btn_callback(id_to_connect,True, False, False, True)
             self.log_msg["text"] = 'Connecting to ' + self.muses[id_to_connect]['name'] + '...                      '
             self.log_msg.update_idletasks()
-            self.connected_address = self.muses[id_to_connect]['address']
 
-            # Connecting to MUSE
-            eeg_info = StreamInfo('Muse', 'EEG', MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, 'float32',
-                                  'Muse%s' % self.connected_address)
-            eeg_info.desc().append_child_value("manufacturer", "Muse")
-            eeg_channels = eeg_info.desc().append_child("channels")
-
-            for c in ['TP9', 'AF7', 'AF8', 'TP10', 'Right AUX']:
-                eeg_channels.append_child("channel") \
-                    .append_child_value("label", c) \
-                    .append_child_value("unit", "microvolts") \
-                    .append_child_value("type", "EEG")
-            self.muse = Muse(address=self.connected_address, callback_eeg=self.pushy, callback_ppg=None,
-                             callback_acc=None, callback_gyro=None, backend=self.muse_backend, interface="/dev/ttyACM0",
-                             name=self.muses[id_to_connect]['name'])
-
-            self.did_connect = self.muse.connect()
+            self.did_connect = self.backend.is_connected()
 
             if self.did_connect:
                 self.log_msg["text"] = 'Connected to ' + self.muses[id_to_connect]['name'] + '...                 '
@@ -157,11 +136,10 @@ class HelloWorldApp:
                 self.UDP_send_btn.update_idletasks()
 
     def disconnect_callback(self):
-        self.backend.disconnect_btn_callback()
-        if not self.did_connect:
+        suc = self.backend.disconnect_btn_callback()
+        if not suc:
             return
-        self.muse.disconnect()
-        self.muse = None
+
         self.did_connect = False
 
         self.disconnect_btn.configure(state=DISABLED)
@@ -175,27 +153,7 @@ class HelloWorldApp:
 
         self.log_msg.configure(text='Disconnected from all MUSE devices...                                     ')
         self.log_msg.update_idletasks()
-        # self.refresh_callback()
 
-    def pushy(self, data, timestamps):
-
-        if self.sock is None or not self.udp_address:
-            return
-        for ii in range(data.shape[1]):
-
-            MSG = struct.pack('ffffff', data[0, ii],
-                              data[1, ii], data[2, ii], data[3, ii], data[4, ii],
-                              100 * (timestamps[ii] - self.prv_ts))
-
-            self.prv_ts = timestamps[ii]
-            if not is_data_valid(data[:, ii], timestamps[ii]):
-                continue
-
-            if self.sock is None or not self.udp_address:
-                return
-            self.sock.sendto(MSG, self.udp_address)
-
-            # print(data[0, ii], data[1, ii], data[2, ii], data[3, ii], data[4, ii], timestamps[ii])
 
     def UDP_send_btn_callback(self):
         if not self.did_connect:

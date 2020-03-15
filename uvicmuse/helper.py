@@ -1,10 +1,6 @@
 import platform
 import pygatt
 
-import helper
-
-
-# from . import helper
 
 def resolve_backend(backend):
     if backend in ['auto', 'gatt', 'bgapi']:
@@ -31,8 +27,8 @@ def find_muse(name=None):
         return muses[0]
 
 
-def list_muses(backend='bgapi', interface=None):
-    backend = helper.resolve_backend(backend)
+def list_muses(backend='bgapi', interface="/dev/ttyACM0"):
+    backend = resolve_backend(backend)
 
     if backend == 'gatt':
         interface = interface or 'hci0'
