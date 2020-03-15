@@ -1,5 +1,5 @@
 # from GUI import runGUI
-from .GUI import runGUI
+from interface import runGUI
 
 
 def main():

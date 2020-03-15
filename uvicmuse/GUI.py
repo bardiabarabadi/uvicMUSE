@@ -19,12 +19,7 @@ from .constants import AUTO_DISCONNECT_DELAY, \
     MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE
 from .muse import Muse
 
-from tkinter import ttk, font, messagebox
-import tkinter as tk
 
-from tkinter import *
-from PIL import ImageTk, Image
-import pygubu
 
 
 def is_data_valid(data, timestamps):

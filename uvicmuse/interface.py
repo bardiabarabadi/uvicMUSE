@@ -19,12 +19,10 @@ from kivy.graphics import *
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.switch import Switch
 from kivy.uix.recycleview import RecycleView
+from kivy.uix.textinput import TextInput 
 from uvicmuse import muse
 from uvicmuse import helper
 from functools import partial
-
-
-
 
 def is_data_valid(data, timestamps):
     if timestamps == 0.0:
@@ -43,7 +41,6 @@ def find_muse(name=None):
                 return muse
     elif muses:
         return muses[0]
-
 
 def list_muses(backend='bgapi', interface=None):
     backend = helper.resolve_backend(backend)
@@ -75,7 +72,6 @@ def list_muses(backend='bgapi', interface=None):
 
     return muses
 
-
 class UVicMuse(FloatLayout):
 
 	def __init__(self, **kwargs):
@@ -88,9 +84,12 @@ class UVicMuse(FloatLayout):
 		self.udp_address = ""
 		self.connected_address = ""
 		self.backend = 'bgapi'
+		self.port_number = None
 
-		#create labels and buttons
+		#Create UVic Muse Logo
 		self.img = Image(source = 'logo.png')
+
+		#Initiate Labels
 		self.list_label1 = Label(text = "", color = (0,0,0,1), font_size = 17)
 		self.list_label2 = Label(text = "", color = (0,0,0,1), font_size = 17)
 		self.status_label = Label(text = "Press Search to Look For Muse", color = (.05,.5,.95,1), font_size = 14)
@@ -100,72 +99,151 @@ class UVicMuse(FloatLayout):
 		self.search_button = Button(text = "Search", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.65}, background_color = (.05,.5,.95,1), on_release = self.search_logic, on_press = self.update_status_search)
 		self.start_stream_button = Button(text = "Start Stream", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.55}, background_color = (.05,.5,.95,1))
 		self.stop_stream_button = Button(text = "Stop Stream", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.45}, background_color = (.05,.5,.95,1))
+		self.LSL_label = Label(text = "LSL", color = (.3,.3,1,1), font_size = 14)
+		self.EEG_label = Label(text = "EEG", color = (.3,.3,1,1), font_size = 14)
+		self.PPG_label = Label(text = "PPG", color = (.3,.3,1,1), font_size = 14)
+		self.ACC_label = Label(text = "ACC", color = (.3,.3,1,1), font_size = 14)
+		self.GYRO_label = Label(text = "GYRO", color = (.3,.3,1,1), font_size = 14)
+		self.lowpass_label = Label(text = "Lowpass Filter", color = (.3,.3,1,1), font_size = 14)
+		self.highpass_label = Label(text = "Highpass Filter", color = (.3,.3,1,1), font_size = 14)
+		self.lowpass_cutoff = Label(text = "Cutoff", color = (.3,.3,1,1), font_size = 14)
+		self.highpass_cutoff = Label(text = "Cutoff", color = (.3,.3,1,1), font_size = 14)		
 
-
+		#Initiate Buttons and bind press and release to functions
 		self.connect_button1 = Button(text = "Connect", size_hint=(.112, .059),pos_hint={'x':.56, 'y':.725}, background_color = (.05,.5,.95,1))
 		self.connect_button1.bind(on_press = partial(self.update_status_connect, 'connect1'), on_release = partial(self.connect, 'connect1'))
-
 		self.disconnect_button1 = Button(text = "Disconnect", size_hint=(.112, .059),pos_hint={'x':.68, 'y':.725}, background_color = (.05,.5,.95,1))
 		self.disconnect_button1.bind(on_press = partial(self.update_status_connect, 'disconnect1'), on_release = partial(self.connect, 'disconnect1'))
-
 		self.connect_button2 = Button(text = "Connect", size_hint=(.112, .059),pos_hint={'x':.56, 'y':.59}, background_color = (.05,.5,.95,1))
 		self.connect_button2.bind(on_press = partial(self.update_status_connect, 'connect2'), on_release = partial(self.connect, 'connect2'))
-
 		self.disconnect_button2 = Button(text = "Disconnect", size_hint=(.112, .059),pos_hint={'x':.68, 'y':.59}, background_color = (.05,.5,.95,1))
 		self.disconnect_button2.bind(on_press = partial(self.update_status_connect, 'disconnect2'), on_release = partial(self.connect, 'disconnect2'))
 
+		#Initiate Checkbox's
+		self.LSL_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.EEG_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.PPG_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.ACC_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02) 
+		self.GYRO_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.lowpass_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.highpass_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
 
+		#Initiate textbox's to enter text 
+		self.port_text = TextInput(font_size = 13 , pos_hint = {"x": 0.039, "y": 0.187 }, size_hint = (0.07,0.05), multiline= False)
+		# self.port_text.bind(text = self.get_port_number) to bind to a function
+		self.host_text = TextInput(font_size = 13, pos_hint = {"x": 0.15, "y": 0.187 }, size_hint = (0.1,0.05), multiline = False) 
+		self.lowpass_text = TextInput(font_size = 13 , pos_hint = {"x": 0.31, "y": 0.055 }, size_hint = (0.07,0.043), multiline= False)
+		self.highpass_text = TextInput(font_size = 13 , pos_hint = {"x": 0.706, "y": 0.055}, size_hint = (0.07,0.043), multiline= False)
 
-		self.showConfig_button = Button(text = "Show Configuration", font_size = 12, size_hint=(.17, .05),pos_hint={'x':0.03, 'y':.22}, background_color = (.05,.5,.95,1))
-		self.hideConfig_button = Button(text = "Hide Configuration", font_size = 12, size_hint=(.17, .05),pos_hint={'x':.22, 'y':.22}, background_color = (.05,.5,.95,1))
-		self.LSL_checkbox = CheckBox(active = False)
-		self.EEG_checkbox = CheckBox(active = True)
-		self.PPG_checkbox = CheckBox(active = False)
-		self.ACC_checkbox = CheckBox(active = True) 
-		self.GYRO_checkbox = CheckBox(active = True)
-		self.lowpass_checkbox = CheckBox(active = False) 
-		self.highpass_checkbox = CheckBox(active = True)
-
-
-		#add widgets
+		#add widgets that have been initiated to frame
 		self.add_widget(self.img)
 		self.add_widget(self.search_button)
 		self.add_widget(self.start_stream_button)
 		self.add_widget(self.stop_stream_button)
 		self.add_widget(self.status_label)
-
 		self.add_widget(self.port_label)
 		self.add_widget(self.host_label)
+		self.add_widget(self.port_text)
+		self.add_widget(self.host_text)
+		self.add_widget(self.lowpass_text)
+		self.add_widget(self.highpass_text)
+		self.add_widget(self.LSL_label)
+		self.add_widget(self.EEG_label)
+		self.add_widget(self.PPG_label)
+		self.add_widget(self.ACC_label)
+		self.add_widget(self.GYRO_label)
+		self.add_widget(self.LSL_checkbox)
+		self.add_widget(self.EEG_checkbox)
+		self.add_widget(self.PPG_checkbox)
+		self.add_widget(self.ACC_checkbox)
+		self.add_widget(self.GYRO_checkbox)
+		self.add_widget(self.lowpass_label)
+		self.add_widget(self.highpass_label)
+		self.add_widget(self.lowpass_checkbox)
+		self.add_widget(self.highpass_checkbox)
+		self.add_widget(self.lowpass_cutoff)
+		self.add_widget(self.highpass_cutoff)
 
-		#positions
+		#Adjust positions of widgets that have been added to the frame
 		self.img.pos = (0,220)
 		self.status_label.pos = (-250, -90)
 		self.port_label.pos = (-320, -150)
 		self.host_label.pos = (-225, -150)
+		self.LSL_label.pos = (-120, -153)
+		self.EEG_label.pos = (-20, -153)
+		self.PPG_label.pos = (80, -153)
+		self.ACC_label.pos = (180, -153)
+		self.GYRO_label.pos = (280, -153)
+		self.LSL_checkbox.pos = (247.5, 122)
+		self.EEG_checkbox.pos = (347, 122)
+		self.PPG_checkbox.pos = (447, 122)
+		self.ACC_checkbox.pos = (547, 122)
+		self.GYRO_checkbox.pos = (647, 122)
+		self.lowpass_label.pos = (-193, -230)
+		self.highpass_label.pos = (102 , -230)
+		self.lowpass_checkbox.pos = (250, 63)
+		self.highpass_checkbox.pos = (547, 63)
+		self.lowpass_cutoff.pos = (-170,-255)
+		self.highpass_cutoff.pos = (125,-255)
 
-		#logic
+	#logic
+
+	def get_lowpass_cutoff(self):
+		return int(self.lowpass_text.text)
+
+	def get_highpass_cutoff(self):
+		return int(self.highpass_text.text)
+		
+	def get_LSL_checkbox(self):
+		if(self.LSL_checkbox.active):
+			return True
+		return False 
+
+	def get_EEG_checkbox(self):
+		if(self.EEG_checkbox.active):
+			return True
+		return False
+
+	def get_PPG_checkbox(self):
+		if(self.PPG_checkbox.active):
+			return True
+		return False	
+
+	def get_ACC_checkbox(self):
+		if(self.ACC_checkbox.active):
+			return True
+		return False
+
+	def get_GYRO_checkbox(self):
+		if(self.GYRO_checkbox.active):
+			return True
+		return False
+
+	def get_port_entry(self):
+		return int(self.port_text.text)
+
+	def get_host_entry(self):
+		return str(self.host_text.text)
+
 	def update_status_connect(self,button, event):
 		if(button) == 'connect1':
-			self.status_label.text = "Connecting to " + str(self.muses[0]['name'] + "       ")
+			self.status_label.text = "Connecting to " + str(self.muses[0]['name']+ "            ")
 		if(button) == 'disconnect1':
-			self.status_label.text = "Disconnecting from " + str(self.muses[0]['name'] + "       ")
+			self.status_label.text = "Disconnecting from " + str(self.muses[0]['name'])
 		if(button) == 'connect2':
-			self.status_label.text = "Connecting to " + str(self.muses[1]['name'] + "       ")
+			self.status_label.text = "Connecting to " + str(self.muses[1]['name']+ "            ")
 		if(button) == 'disconnect2':
-			self.status_label.text = "Disconnecting from " + str(self.muses[1]['name'] + "       ")
-
-
+			self.status_label.text = "Disconnecting from " + str(self.muses[1]['name'])
 
 	def connect(self, button, event):
 		if(button) == "connect1":
 			print("connect1")
-		if(button) == "disconnect1":			#change to actually connect and disconenct
-			print("disconnect1")
+		if(button) == "disconnect1":
+			print("disconnect2")			
 		if(button) == "connect2":
 			print("connect2")
 		if(button) == "disconnect2":
 			print("disconnect2")						
-
 
 	def update_status_search(self, event,):
 		self.status_label.text = "Searching For Muse, Please Wait"
@@ -195,10 +273,6 @@ class UVicMuse(FloatLayout):
 			self.add_widget(self.connect_button2)
 			self.add_widget(self.disconnect_button2)
 
-	
-
-
-
 class app1(App):
     def build(self):
         return UVicMuse()
@@ -208,67 +282,3 @@ if __name__=="__main__":
 
 
 
-
-		# self.LSL_label = Label(text = "LSL", color = (.3,.3,1,1), font_size = 14)
-		# self.EEG_label = Label(text = "EEG", color = (.3,.3,1,1), font_size = 14)
-		# self.PPG_label = Label(text = "PPG", color = (.3,.3,1,1), font_size = 14)
-		# self.ACC_label = Label(text = "ACC", color = (.3,.3,1,1), font_size = 14)
-		# self.GYRO_label = Label(text = "GYRO", color = (.3,.3,1,1), font_size = 14)
-
-		# self.lowpass_label = Label(text = "Lowpass Filter", color = (.3,.3,1,1), font_size = 14)
-		# self.highpass_label = Label(text = "Highpass Filter", color = (.3,.3,1,1), font_size = 14)
-
-		# self.lowpass_cutoff = Label(text = "Cutoff:", color = (.3,.3,1,1), font_size = 14)
-		# self.highpass_cutoff = Label(text = "Cutoff:", color = (.3,.3,1,1), font_size = 14)
-
-		# self.add_widget(self.LSL_label)
-		# self.add_widget(self.EEG_label)
-		# self.add_widget(self.PPG_label)
-		# self.add_widget(self.ACC_label)
-		# self.add_widget(self.GYRO_label)
-
-		# self.add_widget(self.LSL_checkbox)
-		# self.add_widget(self.EEG_checkbox)
-		# self.add_widget(self.PPG_checkbox)
-		# self.add_widget(self.ACC_checkbox)
-		# self.add_widget(self.GYRO_checkbox)
-
-		# self.add_widget(self.lowpass_label)
-		# self.add_widget(self.highpass_label)
-
-		# self.add_widget(self.lowpass_checkbox)
-		# self.add_widget(self.highpass_checkbox)
-
-		# self.add_widget(self.lowpass_cutoff)
-		# self.add_widget(self.highpass_cutoff)
-
-		# self.add_widget(self.test_switch)
-		# self.add_widget(self.test_switch2)
-
-
-
-
-
-		# self.LSL_label.pos = (-120, -150)
-		# self.EEG_label.pos = (-20, -150)
-		# self.PPG_label.pos = (80, -150)
-		# self.ACC_label.pos = (180, -150)
-		# self.GYRO_label.pos = (280, -150)
-
-
-		# self.LSL_checkbox.pos = (-122, -170)
-		# self.EEG_checkbox.pos = (-22, -170)
-		# self.PPG_checkbox.pos = (82, -170)
-		# self.ACC_checkbox.pos = (182, -170)
-		# self.GYRO_checkbox.pos = (282, -170)
-
-		# self.lowpass_label.pos = (-188, -230)
-		# self.highpass_label.pos = (112 , -230)
-
-		# self.lowpass_checkbox.pos = (-122, -230)
-		# self.highpass_checkbox.pos = (182, -230)
-
-		# self.lowpass_cutoff.pos = (-200,-250)
-		# self.highpass_cutoff.pos = (100,-250)
-
-		# self.test_switch2.pos = (-100, 100)
