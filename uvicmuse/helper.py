@@ -27,7 +27,7 @@ def find_muse(name=None):
         return muses[0]
 
 
-def list_muses(backend='bgapi', interface="/dev/ttyACM0"):
+def list_muses(backend='bgapi', interface=None):
     backend = resolve_backend(backend)
 
     if backend == 'gatt':
@@ -38,7 +38,7 @@ def list_muses(backend='bgapi', interface="/dev/ttyACM0"):
 
     adapter.start()
     print('Searching for Muses, this may take up to 10 seconds...                                 ')
-    devices = adapter.scan(timeout=8.5)
+    devices = adapter.scan(timeout=10.5)
     adapter.stop()
     muses = []
 

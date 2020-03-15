@@ -115,15 +115,15 @@ class HelloWorldApp:
             self.log_msg.update_idletasks()
             return
         else:
-            id_to_connect=id_to_connect[0]
-            self.backend.connect_btn_callback(id_to_connect,True, False, False, True)
-            self.log_msg["text"] = 'Connecting to ' + self.muses[id_to_connect]['name'] + '...                      '
+            id_to_connect = id_to_connect[0]
+            self.backend.connect_btn_callback(id_to_connect, True, False, False, False)
+            self.log_msg["text"] = 'Connecting to ' + self.backend.get_muse_name() + '...                      '
             self.log_msg.update_idletasks()
 
             self.did_connect = self.backend.is_connected()
 
             if self.did_connect:
-                self.log_msg["text"] = 'Connected to ' + self.muses[id_to_connect]['name'] + '...                 '
+                self.log_msg["text"] = 'Connected to ' + self.backend.get_muse_name() + '...                 '
                 self.log_msg.update_idletasks()
 
                 self.disconnect_btn.configure(state=NORMAL)
@@ -154,18 +154,11 @@ class HelloWorldApp:
         self.log_msg.configure(text='Disconnected from all MUSE devices...                                     ')
         self.log_msg.update_idletasks()
 
-
     def UDP_send_btn_callback(self):
         if not self.did_connect:
             messagebox._show("No Connection", "Connect to a MUSE before starting the UDP stream")
             return
-        self.muse.start()
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-        add = self.address_entry.get()
-        prt = int(self.port_entry.get())
-
-        self.udp_address = (add, prt)
+        self.backend.udp_stream_btn_callback(int(self.port_entry.get()), self.address_entry.get())
 
         self.UDP_stop_btn.configure(state=NORMAL)
         self.UDP_stop_btn.update_idletasks()
@@ -177,12 +170,7 @@ class HelloWorldApp:
         self.log_msg.update_idletasks()
 
     def UDP_stop_btn_callback(self):
-        if not self.did_connect or not self.sock:
-            return
-
-        self.udp_address = ()
-        self.sock.close()
-        self.sock = None
+        self.backend.udp_stop_btn_callback()
 
         self.UDP_stop_btn.configure(state=DISABLED)
         self.UDP_stop_btn.update_idletasks()

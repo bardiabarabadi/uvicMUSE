@@ -6,27 +6,34 @@ import socket
 import struct
 import pygatt
 from pylsl import StreamInfo, StreamOutlet
+import platform
 
 
 class Backend:
 
-    def __init__(self, muse_backend='bgapi'):
+    def __init__(self, muse_backend='bgapi'):   # TODO: Different portocols need different port sfor udp
+                                                # Solution: Get a 'base' udp port and build all on top of that
+                                                # Reflect on the matlab function
         self.muses = []
         self.muse = None
+        self.muse_obj = None
         self.is_muse_connected = False
         self.muse_backend = muse_backend
 
-        self.use_lsl = False
+        self.use_lsl = True
 
         self.udp_port = 0
         self.udp_address = ''
+        self.udp_address_port = ()
         self.is_udp_streaming = False
-        self.socket = False
+        self.socket = None
 
         self.use_low_pass = False
         self.use_high_pass = False
         self.low_pass_cutoff = 0.1
         self.high_pass_cutoff = 30.0
+
+        self.interface = "/dev/ttyACM0" if platform.system() == 'Linux' else None
 
     # + MUSE interface functions
     def refresh_btn_callback(self):
@@ -58,12 +65,12 @@ class Backend:
         push_acc = partial(self._push, outlet=acc_outlet) if use_ACC else None
         push_gyro = partial(self._push, outlet=gyro_outlet) if use_gyro else None
 
-        self.muse = Muse(address=self.get_muse_address(), callback_eeg=push_eeg,
-                         callback_ppg=push_ppg, callback_acc=push_acc,
-                         callback_gyro=push_gyro, backend=self.muse_backend,
-                         interface="/dev/ttyACM0", name=self.get_muse_name())
+        self.muse_obj = Muse(address=self.get_muse_address(), callback_eeg=push_eeg,
+                             callback_ppg=push_ppg, callback_acc=push_acc,
+                             callback_gyro=push_gyro, backend=self.muse_backend,
+                             interface=self.interface, name=self.get_muse_name())
 
-        self.is_muse_connected = self.muse.connect()
+        self.is_muse_connected = self.muse_obj.connect()
 
         return self.is_muse_connected
 
@@ -71,10 +78,10 @@ class Backend:
         if not self.is_muse_connected:
             return False
         else:
-            self.muse.stop()
-            self.muse.disconnect()
+            self.muse_obj.stop()
+            self.muse_obj.disconnect()
             self.is_muse_connected = False
-            self.muse = None
+            self.muse_obj = None
             return True
 
     # - MUSE interface functions
@@ -83,13 +90,19 @@ class Backend:
     def udp_stream_btn_callback(self, udp_port, udp_address):
         self.udp_port = udp_port
         self.udp_address = udp_address
+        self.udp_address_port = (self.udp_address, self.udp_port)
         self.is_udp_streaming = True
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.muse_obj.start()
         return
 
     def udp_stop_btn_callback(self):
+        self.muse_obj.stop()
         self.udp_port = 0
         self.udp_address = ''
         self.is_udp_streaming = False
+        self.socket = None
+        self.udp_address_port = ()
         return
 
     # - UDP interface functions
@@ -114,6 +127,13 @@ class Backend:
         eeg_info = StreamInfo('Muse', 'EEG', MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, 'float32',
                               'Muse%s' % self.get_muse_address())
         eeg_info.desc().append_child_value("manufacturer", "Muse")
+        eeg_channels = eeg_info.desc().append_child("channels")
+
+        for c in ['TP9', 'AF7', 'AF8', 'TP10', 'Right AUX']:
+            eeg_channels.append_child("channel") \
+                .append_child_value("label", c) \
+                .append_child_value("unit", "microvolts") \
+                .append_child_value("type", "EEG")
 
         eeg_outlet = StreamOutlet(eeg_info, LSL_EEG_CHUNK)
 
@@ -151,15 +171,16 @@ class Backend:
         for ii in range(data.shape[1]):
             if self.use_lsl:
                 outlet.push_sample(data[:, ii], timestamps[ii])
+                # print ("Sample pushed" + str(data[:,ii]))
 
             if self.is_udp_streaming:
 
-                udp_msg = struct.pack('ffffff', data[0, ii],
+                udp_msg = struct.pack('ffffff', data[0, ii], # TODO: Change data format for ppg and acc and gyro
                                       data[1, ii], data[2, ii], data[3, ii], data[4, ii],
-                                      100 * (timestamps[ii] - self.prv_ts))
+                                      100 * (timestamps[ii]))
 
                 self.prv_ts = timestamps[ii]
                 if not is_data_valid(data[:, ii], timestamps[ii]):
                     continue
 
-                self.socket.sendto(udp_msg, self.udp_address)
+                self.socket.sendto(udp_msg, self.udp_address_port)
