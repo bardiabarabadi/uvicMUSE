@@ -31,10 +31,10 @@ class Backend:
     # + MUSE interface functions
     def refresh_btn_callback(self):
         succeed = False
-        # try:
-        self.muses = list_muses()
-        # except pygatt.exceptions.BLEError:
-            # return ["No BLE Module Found."], succeed
+        try:
+            self.muses = list_muses()
+        except pygatt.exceptions.BLEError:
+            return ["No BLE Module Found."], succeed
 
         succeed = True
         to_return = []
