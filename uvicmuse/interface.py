@@ -1,10 +1,11 @@
 
 import time
 import subprocess 
-from os import getpid
 from multiprocessing import Process
 import sys
 import pygatt
+from functools import partial
+
 from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.button import Button
@@ -20,57 +21,9 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.switch import Switch
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.textinput import TextInput 
-from uvicmuse import muse
-from uvicmuse import helper
-from functools import partial
 
-def is_data_valid(data, timestamps):
-    if timestamps == 0.0:
-        return False
-
-    for i in range(data.shape[0] - 1):
-        if data[i] == 0.0:
-            return False
-    return True
-
-def find_muse(name=None):
-    muses = list_muses()
-    if name:
-        for muse in muses:
-            if muse['name'] == name:
-                return muse
-    elif muses:
-        return muses[0]
-
-def list_muses(backend='bgapi', interface=None):
-    backend = helper.resolve_backend(backend)
-
-    if backend == 'gatt':
-        interface = interface or 'hci0'
-        adapter = pygatt.GATTToolBackend(interface)
-    elif backend == 'bluemuse':
-        return
-    else:
-        adapter = pygatt.BGAPIBackend(serial_port=interface)
-
-    adapter.start()
-    print('Searching for Muses, this may take up to 10 seconds...                                 ')
-    devices = adapter.scan(timeout=10.5)
-    adapter.stop()
-    muses = []
-
-    for device in devices:
-        if device['name'] and 'Muse' in device['name']:
-            muses = muses + [device]
-
-    if (muses):
-        for muse in muses:
-            print('Found device %s, MAC Address %s' %
-                  (muse['name'], muse['address']))
-    else:
-        print('No Muses found.')
-
-    return muses
+from uvicmuse.muse import Muse
+from uvicmuse.Backend import Backend
 
 class UVicMuse(FloatLayout):
 
@@ -83,8 +36,10 @@ class UVicMuse(FloatLayout):
 		self.did_connect = False
 		self.udp_address = ""
 		self.connected_address = ""
-		self.backend = 'bgapi'
+		self.muse_backend = 'bgapi'
 		self.port_number = None
+		self.host_address = 'localhost'
+		self.backend = Backend(self.muse_backend)
 
 		#Create UVic Muse Logo
 		self.img = Image(source = 'logo.png')
@@ -112,12 +67,15 @@ class UVicMuse(FloatLayout):
 		#Initiate Buttons and bind press and release to functions
 		self.connect_button1 = Button(text = "Connect", size_hint=(.112, .059),pos_hint={'x':.56, 'y':.725}, background_color = (.05,.5,.95,1))
 		self.connect_button1.bind(on_press = partial(self.update_status_connect, 'connect1'), on_release = partial(self.connect, 'connect1'))
+
 		self.disconnect_button1 = Button(text = "Disconnect", size_hint=(.112, .059),pos_hint={'x':.68, 'y':.725}, background_color = (.05,.5,.95,1))
-		self.disconnect_button1.bind(on_press = partial(self.update_status_connect, 'disconnect1'), on_release = partial(self.connect, 'disconnect1'))
+		self.disconnect_button1.bind(on_press = partial(self.update_status_connect, 'disconnect1'), on_release = partial(self.disconnect, 'disconnect1'))
+
 		self.connect_button2 = Button(text = "Connect", size_hint=(.112, .059),pos_hint={'x':.56, 'y':.59}, background_color = (.05,.5,.95,1))
 		self.connect_button2.bind(on_press = partial(self.update_status_connect, 'connect2'), on_release = partial(self.connect, 'connect2'))
+
 		self.disconnect_button2 = Button(text = "Disconnect", size_hint=(.112, .059),pos_hint={'x':.68, 'y':.59}, background_color = (.05,.5,.95,1))
-		self.disconnect_button2.bind(on_press = partial(self.update_status_connect, 'disconnect2'), on_release = partial(self.connect, 'disconnect2'))
+		self.disconnect_button2.bind(on_press = partial(self.update_status_connect, 'disconnect2'), on_release = partial(self.disconnect, 'disconnect2'))
 
 		#Initiate Checkbox's
 		self.LSL_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
@@ -237,19 +195,51 @@ class UVicMuse(FloatLayout):
 
 	def connect(self, button, event):
 		if(button) == "connect1":
-			print("connect1")
-		if(button) == "disconnect1":
-			print("disconnect2")			
+			if(self.backend.is_connected()):
+				self.status_label.text = "Already Connected to Muse"
+			else:
+				self.backend.connect_btn_callback(0, self.get_EEG_checkbox(), self.get_PPG_checkbox(), self.get_ACC_checkbox(), self.get_GYRO_checkbox())
+				self.did_connect = self.backend.is_connected()
+				if(self.did_connect):
+					self.status_label.text = "Succesfully connected to " + str(self.muses[0]['name'])
+					self.connected_address = self.muses[0]['address']
+					print(self.connected_address)
+				else:
+					self.status_label.text = "Unsuccesfull connection attempt"
+			
 		if(button) == "connect2":
-			print("connect2")
-		if(button) == "disconnect2":
-			print("disconnect2")						
+			if(self.backend.is_connected()):
+				self.status_label.text = "Already Connected to Muse"
+			else:
+				self.backend.connect_btn_callback(1, self.get_EEG_checkbox(), self.get_PPG_checkbox(), self.get_ACC_checkbox(), self.get_GYRO_checkbox())
+				self.did_connect = self.backend.is_connected()
+				if(self.did_connect):
+					self.status_label.text = "Succesfully connected to " +  str(self.muses[1]['name'])
+					self.connected_address = self.muses[1]['address']
+					print(self.connected_address)
+				else:
+					self.status_label.text = "Unsuccesfull connection attempt"
+
+
+	def disconnect(self, button, event):
+		if(button) == 'disconnect1':
+			if(self.backend.disconnect_btn_callback()):
+				self.status_label.text = "Disconnected from " + str(self.muses[0]['name'])
+			else:
+				self.status_label.text = "Not connected to a Muse"
+
+		if(button) == 'disconnect2':
+			if(self.backend.disconnect_btn_callback()):
+				self.status_label.text = "Disconnected from " + str(self.muses[1]['name'])
+			else:
+				self.status_label.text = "Not connected to a Muse"
+
 
 	def update_status_search(self, event,):
 		self.status_label.text = "Searching For Muse, Please Wait"
 
 	def search_logic(self,event):
-		self.muses = list_muses()
+		self.muses, succeed = self.backend.refresh_btn_callback()
 		devices = (len(self.muses))
 		if(devices) == 1:
 			self.status_label.text = " 1 device was found                            "
@@ -276,8 +266,9 @@ class UVicMuse(FloatLayout):
 class app1(App):
     def build(self):
         return UVicMuse()
-if __name__=="__main__":
-     app1().run()
+
+def runGUI():
+	app1().run()
 
 
 
