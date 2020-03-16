@@ -47,7 +47,7 @@ class HelloWorldApp:
         self.refresh_btn = self.builder.get_object('Refresh')
         self.frame_list = self.builder.get_object("Frame_list")
         self.log_msg = self.builder.get_object("Label_2")
-        self.img_lbl = self.builder.get_object("img_label")
+        # self.img_lbl = self.builder.get_object("img_label")
 
         self.address_entry = self.builder.get_object("address_entry")
         self.port_entry = self.builder.get_object("port_entry")
@@ -57,10 +57,10 @@ class HelloWorldApp:
         self.connect_btn = self.builder.get_object("Connect")
         self.disconnect_btn = self.builder.get_object("Disconnect")
 
-        self.img = Image.open('./RedMuse.png')
-        self.image = self.img.resize((372, 102))
-        self.background_image = ImageTk.PhotoImage(self.image)
-        self.img_lbl.configure(image=self.background_image)
+        # self.img = Image.open('./RedMuse.png')
+        # self.image = self.img.resize((372, 102))
+        # self.background_image = ImageTk.PhotoImage(self.image)
+        # self.img_lbl.configure(image=self.background_image)
 
         list_font = font.Font(family='Helvetica', size=12)  # , weight='bold')
 

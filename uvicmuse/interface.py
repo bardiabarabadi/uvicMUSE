@@ -5,6 +5,7 @@ from multiprocessing import Process
 import sys
 import pygatt
 from functools import partial
+import socket
 
 from kivy.lang import Builder
 from kivy.app import App
@@ -52,7 +53,7 @@ class UVicMuse(FloatLayout):
 		self.host_label = Label(text = "Host", color = (.3,.3,1,1), font_size = 14)
 		self.canvas.add(Rectangle(size=(570, 250), pos = (25,225), color = (1,1,1,1)))
 		self.search_button = Button(text = "Search", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.65}, background_color = (.05,.5,.95,1), on_release = self.search_logic, on_press = self.update_status_search)
-		self.start_stream_button = Button(text = "Start Stream", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.55}, background_color = (.05,.5,.95,1))
+		self.start_stream_button = Button(text = "Start Stream", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.55}, background_color = (.05,.5,.95,1), on_press = self.update_status_stream, on_release = self.stream)
 		self.stop_stream_button = Button(text = "Stop Stream", size_hint=(.15, .08),pos_hint={'x':0.82, 'y':.45}, background_color = (.05,.5,.95,1))
 		self.LSL_label = Label(text = "LSL", color = (.3,.3,1,1), font_size = 14)
 		self.EEG_label = Label(text = "EEG", color = (.3,.3,1,1), font_size = 14)
@@ -81,10 +82,10 @@ class UVicMuse(FloatLayout):
 		self.LSL_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
 		self.EEG_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
 		self.PPG_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
-		self.ACC_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02) 
-		self.GYRO_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
-		self.lowpass_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
-		self.highpass_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.ACC_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02) 
+		self.GYRO_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.lowpass_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
+		self.highpass_checkbox = CheckBox(active = False, size_hint_y = 0.02, size_hint_x = 0.02)
 
 		#Initiate textbox's to enter text 
 		self.port_text = TextInput(font_size = 13 , pos_hint = {"x": 0.039, "y": 0.187 }, size_hint = (0.07,0.05), multiline= False)
@@ -145,6 +146,22 @@ class UVicMuse(FloatLayout):
 		self.highpass_cutoff.pos = (125,-255)
 
 	#logic
+	def update_status_stream(self, event):
+		self.status_label.text = "Starting UDP stream     "
+
+	def stream(self, event):
+		if not (self.did_connect):
+			print("not connected")
+			self.status_label.text = "Not connnected to Muse, please connect"
+		else:
+			print("stream")
+			self.backend.udp_stream_btn_callback(1002, 'localhost')
+			if(self.backend.is_udp_streaming):
+				# print("connected and streaming on port " + str(self.get_port_entry()) + " " + self.get_host_entry())
+				print("streaming")
+			else:
+				print("not streaming")
+
 
 	def get_lowpass_cutoff(self):
 		return int(self.lowpass_text.text)

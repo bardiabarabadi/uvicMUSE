@@ -89,8 +89,8 @@ class Backend:
 
     # + UDP interface functions
     def udp_stream_btn_callback(self, udp_port, udp_address):
-        self.udp_port = udp_port
-        self.udp_address = udp_address
+        self.udp_port = 1002
+        self.udp_address = 'localhost'
         self.udp_address_port = (self.udp_address, self.udp_port)
         self.is_udp_streaming = True
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
