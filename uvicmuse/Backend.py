@@ -9,7 +9,6 @@ from pylsl import StreamInfo, StreamOutlet
 import platform
 from scipy import signal
 
-
 class Backend:
 
     def __init__(self, muse_backend='bgapi'):  # TODO: Different protocols need different port sfor udp
@@ -49,11 +48,13 @@ class Backend:
 
         succeed = True
 
+
         return self.muses, succeed
 
     def connect_btn_callback(self, current_muse_id, use_EEG,
                              use_PPG, use_ACC, use_gyro):
         error_msg = ''
+
         self.muse = self.muses[current_muse_id]
 
         eeg_outlet = self._get_eeg_outlet()
@@ -66,6 +67,7 @@ class Backend:
         push_acc = partial(self._push, outlet=acc_outlet, offset=ACC_PORT_OFFSET) if use_ACC else None
         push_gyro = partial(self._push, outlet=gyro_outlet, offset=GYRO_PORT_OFFSET) if use_gyro else None
 
+
         self.muse_obj = Muse(address=self.get_muse_address(), callback_eeg=push_eeg,
                              callback_ppg=push_ppg, callback_acc=push_acc,
                              callback_gyro=push_gyro, backend=self.muse_backend,
@@ -77,6 +79,7 @@ class Backend:
             error_msg = 'MSUE2 is needed for PPG'
 
         return self.is_muse_connected, error_msg
+
 
     def disconnect_btn_callback(self):
         if not self.is_muse_connected:
@@ -117,6 +120,7 @@ class Backend:
 
         self.filter_b, self.filter_a = signal.butter(N=2, Wn=cutoffs, btype=btype, output='ba')
         self.filter_z = signal.lfilter_zi(self.filter_b, self.filter_a)
+        
         self.muse_obj.start()
         return
 
@@ -220,3 +224,4 @@ class Backend:
                     self.prv_ts = timestamps[ii]
                     # print('Sending PPG to : ' + str(self.udp_port + offset))
                     self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))
+

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/muse-lsl.iml" filepath="$PROJECT_DIR$/.idea/muse-lsl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/uvicMUSE.iml" filepath="$PROJECT_DIR$/.idea/uvicMUSE.iml" />
     </modules>
   </component>
 </project>
