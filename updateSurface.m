@@ -7,11 +7,6 @@ AF8 = display_arr(3,:);
 TP10 = display_arr(4,:);
 RAUX = display_arr(5,:);
 
-pl_1.XData = x;
-pl_2.XData = x;
-pl_3.XData = x;
-pl_4.XData = x;
-pl_5.XData = x;
 
 pl_1.YData = TP9;
 pl_2.YData = AF7;

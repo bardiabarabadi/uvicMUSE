@@ -5,9 +5,15 @@ figure
 
 dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'delete(gcbf)');
 
-PORT = 1002;
-udp_sock = udp('localhost',PORT, 'localport', PORT);
-fopen (udp_sock);
+PORT = 6060;
+EEG_OFFSET = 0;
+%PPG_OFFSET = 1;
+
+
+udp_sock_eeg = udp('localhost',PORT+EEG_OFFSET, 'localport', PORT);
+%udp_sock_ppg = udp('localhost',PORT+PPG_OFFSET, 'localport', PORT+1);
+fopen (udp_sock_eeg);
+%fopen (udp_sock_ppg);
 
 display_arr = ones ([6,1500]);
 
@@ -23,58 +29,59 @@ RAUX = display_arr(5,:);
 
 p_11 = subplot(3,2,1);
 hold (p_11, 'on')
-pl_1 = plot(p_11, x, TP9);
+pl_1 = plot(p_11, TP9);
 title('TP9');
 
 p_12 = subplot(3,2,2);
 hold (p_12, 'on')
-pl_2 = plot(p_12, x, AF7);
+pl_2 = plot(p_12, AF7);
 title('AF7')
 
 p_13 = subplot(3,2,3);
 hold (p_13, 'on')
-pl_3 = plot(p_13, x, AF8);
+pl_3 = plot(p_13, AF8);
 title('AF8');
 
 p_21 = subplot(3,2,4);
 hold (p_21, 'on')
-pl_4 = plot(p_21, x, TP10);
+pl_4 = plot(p_21, TP10);
 title('TP10')
 
 
 p_22 = subplot(3,2,5);
 hold (p_22, 'on')
-pl_5 = plot(p_22, x, RAUX);
-title('RAUX')
+pl_5 = plot(p_22, RAUX);
+title('PPG[0]')
 
 p_23 = subplot(3,2,6);
 hold (p_23, 'on')
-pl_6 = plot(p_23, 1:size(x,2), x);
-title('Time Stamps per sample');
+pl_6 = plot(p_23, x);
+title('PPG[1]');
 
 i=0;
-udp_sock.ByteOrder = 'littleEndian';
+udp_sock_eeg.ByteOrder = 'littleEndian';
 
-flushinput(udp_sock)
+flushinput(udp_sock_eeg)
 
 D = parallel.pool.DataQueue;
 D.afterEach(@(display_arr) updateSurface(pl_1,pl_2,pl_3,pl_4,pl_5,pl_6, display_arr));
 
 while (ishandle(dialogBox))
-    if udp_sock.BytesAvailable ~= 0
+    if udp_sock_eeg.BytesAvailable ~= 0
         i=i+1;
         
         
-        A = fread(udp_sock, 6, 'single');
-        if size(A,1) ~= 6
+        A = fread(udp_sock_eeg, 6, 'single');
+        %B = fread(udp_sock_ppg, 4, 'single');
+        if size(A,1) ~= 6 %|| size(B,1) ~= 4
             continue
         end
         
         
         prv_A = A(6);
         display_arr(:,1:end-1) = display_arr(:,2:end);
-        display_arr(:,end) = A;
-        display_arr(6,end)=display_arr(6,end)+display_arr(6,end-1);
+        display_arr(1:4,end) = A(1:4);
+        %display_arr(5:6,end) = B(1:2);
         
         if (~mod(i,150)) 
             send(D, display_arr);
@@ -89,6 +96,6 @@ while (ishandle(dialogBox))
 
 end
 disp ('Done')
-fclose (udp_sock);
+fclose (udp_sock_eeg);
 
 

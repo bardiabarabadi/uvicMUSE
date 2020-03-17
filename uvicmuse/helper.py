@@ -64,3 +64,7 @@ def is_data_valid(data, timestamps):
         if data[i] == 0.0:
             return False
     return True
+
+
+def PPG_error(Exceptions):
+    pass
