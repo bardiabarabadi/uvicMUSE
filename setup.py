@@ -39,18 +39,23 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     install_requires=[
-        "bitstring",
-        "pygatt",
-        "pandas",
-        "scikit-learn",
-        "numpy",
-        "seaborn",
-        "pexpect",
-        "pillow",
-        "pygubu",
-        "tk"
-    ] +
-    (["pylsl==1.10.5"] if os.sys.platform.startswith("linux") else ["pylsl"]),
+                         "bitstring",
+                         "pygatt",
+                         "pandas",
+                         "scikit-learn",
+                         "numpy",
+                         "seaborn",
+                         "pexpect",
+                         "pillow",
+                         "kivy",
+                         "docutils",
+                         "pygments",
+                         "pypiwin32",
+                         "kivy.deps.sdl2",
+                         "kivy.deps.glew",
+                         "kivy.deps.gstreamer"
+                     ] +
+                     (["pylsl==1.10.5"] if os.sys.platform.startswith("linux") else ["pylsl"]),
     classifiers=[
         # How mature is this project?  Common values are
         #   3 - Alpha
