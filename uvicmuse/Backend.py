@@ -7,13 +7,14 @@ import struct
 import pygatt
 from pylsl import StreamInfo, StreamOutlet
 import platform
-
+from scipy import signal
 
 class Backend:
 
-    def __init__(self, muse_backend='bgapi'):   # TODO: Different portocols need different port sfor udp
-                                                # Solution: Get a 'base' udp port and build all on top of that
-                                                # Reflect on the matlab function
+    def __init__(self, muse_backend='bgapi'):  # TODO: Different protocols need different port sfor udp
+        # Solution: Get a 'base' udp port and build all on top of that
+        # Reflect on the matlab function
+        self.fs = 256
         self.muses = []
         self.muse = None
         self.muse_obj = None
@@ -24,7 +25,6 @@ class Backend:
 
         self.udp_port = 0
         self.udp_address = ''
-        self.udp_address_port = ()
         self.is_udp_streaming = False
         self.socket = None
 
@@ -32,6 +32,9 @@ class Backend:
         self.use_high_pass = False
         self.low_pass_cutoff = 0.1
         self.high_pass_cutoff = 30.0
+        self.filter_a = None
+        self.filter_b = None
+        self.filter_z = None
 
         self.interface = "/dev/ttyACM0" if platform.system() == 'Linux' else None
 
@@ -44,14 +47,13 @@ class Backend:
             return ["No BLE Module Found."], succeed
 
         succeed = True
-        to_return = []
-        for i in range(len(self.muses)):
-            to_return.append('[' + str(i) + ']: Name=' + self.muses[i]['name'] + ', Address=' +
-                             self.muses[i]['address'])
-        return to_return, succeed
+
+
+        return self.muses, succeed
 
     def connect_btn_callback(self, current_muse_id, use_EEG,
                              use_PPG, use_ACC, use_gyro):
+        error_msg = ''
 
         self.muse = self.muses[current_muse_id]
 
@@ -60,19 +62,24 @@ class Backend:
         acc_outlet = self._get_acc_outlet()
         gyro_outlet = self._get_gyro_outlet()
 
-        push_eeg = partial(self._push, outlet=eeg_outlet) if use_EEG else None
-        push_ppg = partial(self._push, outlet=ppg_outlet) if use_PPG else None
-        push_acc = partial(self._push, outlet=acc_outlet) if use_ACC else None
-        push_gyro = partial(self._push, outlet=gyro_outlet) if use_gyro else None
+        push_eeg = partial(self._push, outlet=eeg_outlet, offset=EEG_PORT_OFFSET) if use_EEG else None
+        push_ppg = partial(self._push, outlet=ppg_outlet, offset=PPG_PORT_OFFSET) if use_PPG else None
+        push_acc = partial(self._push, outlet=acc_outlet, offset=ACC_PORT_OFFSET) if use_ACC else None
+        push_gyro = partial(self._push, outlet=gyro_outlet, offset=GYRO_PORT_OFFSET) if use_gyro else None
+
 
         self.muse_obj = Muse(address=self.get_muse_address(), callback_eeg=push_eeg,
                              callback_ppg=push_ppg, callback_acc=push_acc,
                              callback_gyro=push_gyro, backend=self.muse_backend,
                              interface=self.interface, name=self.get_muse_name())
 
-        self.is_muse_connected = self.muse_obj.connect()
+        try:
+            self.is_muse_connected = self.muse_obj.connect()
+        except PPG_error:
+            error_msg = 'MSUE2 is needed for PPG'
 
-        return self.is_muse_connected
+        return self.is_muse_connected, error_msg
+
 
     def disconnect_btn_callback(self):
         if not self.is_muse_connected:
@@ -87,12 +94,33 @@ class Backend:
     # - MUSE interface functions
 
     # + UDP interface functions
-    def udp_stream_btn_callback(self, udp_port, udp_address):
+    def udp_stream_btn_callback(self, udp_port, udp_address, use_low_pass, use_high_pass, low_pass_cutoff,
+                                high_pass_cutoff):
         self.udp_port = udp_port
         self.udp_address = udp_address
-        self.udp_address_port = (self.udp_address, self.udp_port)
         self.is_udp_streaming = True
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.use_low_pass = use_low_pass
+        self.use_high_pass = use_high_pass
+
+        self.low_pass_cutoff = low_pass_cutoff / (0.5 * self.fs)
+        self.high_pass_cutoff = high_pass_cutoff / (0.5 * self.fs)
+
+        if self.use_low_pass and self.use_high_pass:
+            cutoffs = [self.high_pass_cutoff, self.low_pass_cutoff]
+            btype = 'band'
+        elif self.use_low_pass:
+            cutoffs = self.low_pass_cutoff
+            btype = 'lowpass'
+        elif self.use_high_pass:
+            cutoffs = self.high_pass_cutoff
+            btype = 'highpass'
+        else:
+            cutoffs = 0
+
+        self.filter_b, self.filter_a = signal.butter(N=2, Wn=cutoffs, btype=btype, output='ba')
+        self.filter_z = signal.lfilter_zi(self.filter_b, self.filter_a)
+        
         self.muse_obj.start()
         return
 
@@ -102,7 +130,6 @@ class Backend:
         self.udp_address = ''
         self.is_udp_streaming = False
         self.socket = None
-        self.udp_address_port = ()
         return
 
     # - UDP interface functions
@@ -167,20 +194,34 @@ class Backend:
 
         return gyro_outlet
 
-    def _push(self, data, timestamps, outlet):
+    def _push(self, data, timestamps, outlet, offset=0):
         for ii in range(data.shape[1]):
             if self.use_lsl:
                 outlet.push_sample(data[:, ii], timestamps[ii])
                 # print ("Sample pushed" + str(data[:,ii]))
 
+            if self.use_low_pass or self.use_high_pass and offset == EEG_PORT_OFFSET:  # TODO: Filter only applied on EEG
+                for i in range(data.shape[0]):
+                    data[i, ii], self.filter_z = signal.lfilter(self.filter_b, self.filter_a, [data[i, ii]],
+                                                                zi=self.filter_z)
+
             if self.is_udp_streaming:
 
-                udp_msg = struct.pack('ffffff', data[0, ii], # TODO: Change data format for ppg and acc and gyro
-                                      data[1, ii], data[2, ii], data[3, ii], data[4, ii],
-                                      100 * (timestamps[ii]))
+                if offset == EEG_PORT_OFFSET:
+                    udp_msg = struct.pack('ffffff', data[0, ii],
+                                          data[1, ii], data[2, ii], data[3, ii], data[4, ii],
+                                          (timestamps[ii]))
+                    if not is_data_valid(data[:, ii], timestamps[ii]):
+                        continue
+                    self.prv_ts = timestamps[ii]
+                    # print('Sending EEG to : ' + str(self.udp_port + offset))
+                    self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))
 
-                self.prv_ts = timestamps[ii]
-                if not is_data_valid(data[:, ii], timestamps[ii]):
-                    continue
+                else:  # ppg or acc or gyro
+                    udp_msg = struct.pack('ffff', data[0, ii],
+                                          data[1, ii], data[2, ii],
+                                          (timestamps[ii]))
+                    self.prv_ts = timestamps[ii]
+                    # print('Sending PPG to : ' + str(self.udp_port + offset))
+                    self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))
 
-                self.socket.sendto(udp_msg, self.udp_address_port)
