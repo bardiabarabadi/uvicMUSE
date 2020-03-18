@@ -40,20 +40,18 @@ class UVicMuse(FloatLayout):
         self.udp_address = ""
         self.connected_address = ""
         self.muse_backend = 'bgapi'
-        self.port_number = None
         self.host_address = 'localhost'
         self.backend = Backend(self.muse_backend)
 
         # Create UVic Muse Logo
-        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'pngs/')
-        self.img = Image(source=DATA_PATH + '/logo.png')
+        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
+        self.img = Image(source=os.path.join(DATA_PATH, 'logo.png'))
+
 
         # Initiate Labels
         self.list_label1 = Label(text="", color=(0, 0, 0, 1), font_size=17)
         self.list_label2 = Label(text="", color=(0, 0, 0, 1), font_size=17)
         self.status_label = Label(text="Press Search to Look For Muse", color=(.05, .5, .95, 1), font_size=14)
-        self.port_label = Label(text="Port", color=(.3, .3, 1, 1), font_size=14)
-        self.host_label = Label(text="Host", color=(.3, .3, 1, 1), font_size=14)
         self.canvas.add(Rectangle(size=(570, 250), pos=(25, 225), color=(1, 1, 1, 1)))
         self.search_button = Button(text="Search", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .65},
                                     background_color=(.05, .5, .95, 1), on_release=self.search_logic,
@@ -105,11 +103,6 @@ class UVicMuse(FloatLayout):
         self.highpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02)
 
         # Initiate textbox's to enter text
-        self.port_text = TextInput(font_size=13, pos_hint={"x": 0.039, "y": 0.187}, size_hint=(0.07, 0.05),
-                                   multiline=False, text='8080', write_tab=False)
-        # self.port_text.bind(text = self.get_port_number) to bind to a function
-        self.host_text = TextInput(font_size=13, pos_hint={"x": 0.15, "y": 0.187}, size_hint=(0.1, 0.05),
-                                   multiline=False, text='localhost', write_tab=False)
         self.lowpass_text = TextInput(font_size=13, pos_hint={"x": 0.31, "y": 0.055}, size_hint=(0.07, 0.043),
                                       multiline=False, text='30', write_tab=False)
         self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.706, "y": 0.055}, size_hint=(0.07, 0.043),
@@ -121,10 +114,6 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.start_stream_button)
         self.add_widget(self.stop_stream_button)
         self.add_widget(self.status_label)
-        self.add_widget(self.port_label)
-        self.add_widget(self.host_label)
-        self.add_widget(self.port_text)
-        self.add_widget(self.host_text)
         self.add_widget(self.lowpass_text)
         self.add_widget(self.highpass_text)
         self.add_widget(self.LSL_label)
@@ -147,8 +136,6 @@ class UVicMuse(FloatLayout):
         # Adjust positions of widgets that have been added to the frame
         self.img.pos = (0, 220)
         self.status_label.pos = (-250, -90)
-        self.port_label.pos = (-320, -150)
-        self.host_label.pos = (-225, -150)
         self.LSL_label.pos = (-120, -153)
         self.EEG_label.pos = (-20, -153)
         self.PPG_label.pos = (80, -153)
@@ -176,12 +163,11 @@ class UVicMuse(FloatLayout):
             self.status_label.text = "Not connnected to Muse, please connect"
         else:
             print("stream")
-            self.backend.udp_stream_btn_callback((int)(self.get_port_entry()), self.get_host_entry(),
+            self.backend.udp_stream_btn_callback(
                                                  self.lowpass_checkbox.active, self.highpass_checkbox.active,
                                                  (float)(self.get_lowpass_cutoff()), (float)(self.get_highpass_cutoff())
                                                  , use_notch=True)  # TODO: Replace True with checkbox
             if self.backend.is_udp_streaming:
-                # print("connected and streaming on port " + str(self.get_port_entry()) + " " + self.get_host_entry())
                 print("streaming")
             else:
                 print("not streaming")
@@ -219,9 +205,6 @@ class UVicMuse(FloatLayout):
         if (self.GYRO_checkbox.active):
             return True
         return False
-
-    def get_port_entry(self):
-        return int(self.port_text.text)
 
     def get_host_entry(self):
         return str(self.host_text.text)

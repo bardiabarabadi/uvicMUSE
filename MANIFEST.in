@@ -1,2 +1,5 @@
-include README.md
-include uvicmuse/pngs/logo.png
+include docs/logo.png
+include docs/*.png
+include docs/*.md
+include uvicmuse/docs/logo.png
+recursive-include docs

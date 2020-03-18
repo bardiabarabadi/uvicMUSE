@@ -5,26 +5,24 @@ import os
 
 def get_long_description():
     this_directory = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(this_directory, 'README.md')) as f:
+    with open(os.path.join(this_directory, 'docs/README.md')) as f:
         long_description = f.read()
         return long_description
-
 
 def copy_docs():
     docs_dir = "uvicmuse/docs"
     if not os.path.exists(docs_dir):
         os.makedirs(docs_dir)
 
-    copyfile("README.md", docs_dir + "/README.md")
-    # copyfile('blinks.png', docs_dir + '/blinks.png')
-
+    copyfile("docs/logo.png", docs_dir + "/logo.png")
+    copyfile("docs/README.md", docs_dir + "/README.md")
 
 copy_docs()
 long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="1.0.5",
+    version="1.0.9",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
@@ -33,10 +31,10 @@ setup(
     license="MIT",
     entry_points={"console_scripts": ["uvicmuse=uvicmuse.__main__:main"]},
     packages=['uvicmuse'],
-    package_data={'uvicmuse': ['uvicmuse/pngs/*.png']},
+    package_data={'uvicmuse': ['docs/logo.png']},
     include_package_data=True,
     zip_safe=False,
-    long_description='',
+    long_description=long_description,
     long_description_content_type='text/markdown',
     install_requires=[
                          "bitstring",

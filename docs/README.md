@@ -37,7 +37,10 @@ and then explain about part two, receivers.
 ### UVic MUSE Installation
 
 On Windows we suggest the user to install Anaconda and run all of the following commands
-(including optional commands) in an Anaconda Prompt. On MacOS and linux, install Anaconda (or miniconda), 
+(including optional commands) in an Anaconda Prompt. You may need to install
+ [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017) (~1GB) from microsoft website if you don't use Anaconda.
+ 
+On MacOS and linux, install Anaconda (or miniconda), 
 open a terminal, and follow these commands:
 
 **If you don't want to use a virtual environment, use Terminal (Linux and OSx) 
@@ -53,7 +56,7 @@ or Command Prompt (Windows) and skip the optional steps.**
     
 Install UVicMUSE using `pip`
 
-    pip install uvicmuse
+    pip install --upgrade uvicmuse
 
     
 #### Running UVicMUSE:
@@ -80,14 +83,14 @@ and typing uvicmuse**
 Follow steps shown below to stream the MUSE sensory data. Remember to correctly specify the **Required Entries** variables
 before moving on to the next step. 
 
-1. Refresh to get a list of available MUSEs
+1. Search to get a list of available MUSEs
 2. Connect to one of the MUSEs. **Required Entries** = Checkboxes (UDP, LSL, EEG, PPG, ACC, GYRO) 
 3. Start Streaming over UDP and LSL (if enabled). **Required Entries** = Filters (Highpass, Lowpass, Notch), UDP (Address, Port)
 
 Notes:
 * The UDP port should be the same as you use in `MuseUdp.m` and `MuseUdp.py`
 * Stopping the stream won't disconnect the MUSE (use this feature for changin UDP port or filters)
-* Refresh is required after disconnecting from a MUSE 
+* Search is required after disconnecting from a MUSE 
 
 
 ## Citing UVicMUSE

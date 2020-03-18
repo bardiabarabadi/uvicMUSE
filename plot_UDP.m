@@ -7,8 +7,18 @@ dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'dele
 
 PORT = 5050;
 EEG_OFFSET = 0;
-PPG_OFFSET = 3;
+PPG_OFFSET = 1;
+ACC_OFFSET = 2;
+GYRO_OFFSET = 3;
 
+udps=instrfindall;
+
+for u = 1:size(udps,2)
+    u_port = udps(u).RemotePort;
+    if u_port >= PORT && u_port <= PORT+GYRO_OFFSET
+        delete (udps(u))
+    end
+end
 
 udp_sock_eeg = udp('localhost',PORT+EEG_OFFSET, 'localport', PORT+EEG_OFFSET);
 udp_sock_ppg = udp('localhost',PORT+PPG_OFFSET, 'localport', PORT+PPG_OFFSET);
