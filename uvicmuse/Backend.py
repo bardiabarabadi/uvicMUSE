@@ -35,6 +35,7 @@ class Backend:
 
         self.use_low_pass = False
         self.use_high_pass = False
+        self.use_notch = False
         self.low_pass_cutoff = 0.1
         self.high_pass_cutoff = 30.0
         self.filter_a = None
@@ -94,14 +95,16 @@ class Backend:
     # - MUSE interface functions
 
     # + UDP interface functions
+    # noinspection PyTupleAssignmentBalance
     def udp_stream_btn_callback(self, udp_port, udp_address, use_low_pass, use_high_pass, low_pass_cutoff,
-                                high_pass_cutoff):
+                                high_pass_cutoff, use_notch):
         self.udp_port = udp_port
         self.udp_address = udp_address
         self.is_udp_streaming = True
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.use_low_pass = use_low_pass
         self.use_high_pass = use_high_pass
+        self.use_notch = use_notch
 
         self.low_pass_cutoff = low_pass_cutoff / (0.5 * self.fs)
         self.high_pass_cutoff = high_pass_cutoff / (0.5 * self.fs)
@@ -116,10 +119,10 @@ class Backend:
             cutoffs = self.high_pass_cutoff
             btype = 'highpass'
         else:
-            cutoffs = 0
-            btype = 'band'
+            cutoffs = 0.5
+            btype = 'low'
 
-        self.filter_b, self.filter_a = signal.butter(N=2, Wn=cutoffs, btype=btype, output='ba')
+        self.filter_b, self.filter_a = signal.butter(N=3, Wn=cutoffs, btype=btype, output='ba')
         self.filter_z = signal.lfilter_zi(self.filter_b, self.filter_a)
 
         self.notch_b, self.notch_a = signal.iirnotch(w0=self.notch_fs * 2 / self.fs, Q=20, fs=self.fs)
@@ -203,12 +206,14 @@ class Backend:
         for ii in range(data.shape[1]):
             if self.use_lsl:
                 outlet.push_sample(data[:, ii], timestamps[ii])
-                # print ("Sample pushed" + str(data[:,ii]))
 
             if self.use_low_pass or self.use_high_pass and offset == EEG_PORT_OFFSET:  # TODO: Only Filter EEG
                 for i in range(data.shape[0]):
                     data[i, ii], self.filter_z = signal.lfilter(self.filter_b, self.filter_a, [data[i, ii]],
                                                                 zi=self.filter_z)
+
+            if self.use_notch and offset == EEG_PORT_OFFSET:
+                for i in range(data.shape[0]):
                     data[i, ii], self.notch_z = signal.lfilter(self.notch_b, self.notch_a, [data[i, ii]],
                                                                zi=self.notch_z)
 
@@ -220,14 +225,12 @@ class Backend:
                                           (timestamps[ii]))
                     if not is_data_valid(data[:, ii], timestamps[ii]):
                         continue
-                    self.prv_ts = timestamps[ii]
-                    # print('Sending EEG to : ' + str(self.udp_port + offset))
                     self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))
 
                 else:  # ppg or acc or gyro
                     udp_msg = struct.pack('ffff', data[0, ii],
                                           data[1, ii], data[2, ii],
                                           (timestamps[ii]))
-                    self.prv_ts = timestamps[ii]
-                    # print('Sending PPG to : ' + str(self.udp_port + offset))
+                    if not is_data_valid(data[:, ii], timestamps[ii]):
+                        continue
                     self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))

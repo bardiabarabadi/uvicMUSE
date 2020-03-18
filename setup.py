@@ -24,19 +24,19 @@ long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="1.0.0",
+    version="1.0.5",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
-    author="",
-    author_email="",
-    license="",
+    author="Bardia Barabadi",
+    author_email="b.barabadi@gmail.com",
+    license="MIT",
     entry_points={"console_scripts": ["uvicmuse=uvicmuse.__main__:main"]},
-    packages=find_packages(),
-    package_data={"uvicmuse": ["docs/README.md", "docs/examples/*"]},
+    packages=['uvicmuse'],
+    package_data={'uvicmuse': ['uvicmuse/pngs/*.png']},
     include_package_data=True,
     zip_safe=False,
-    long_description=long_description,
+    long_description='',
     long_description_content_type='text/markdown',
     install_requires=[
                          "bitstring",
@@ -49,13 +49,13 @@ setup(
                          "pillow",
                          "kivy",
                          "docutils",
-                         "pygments",
-                         "pypiwin32",
-                         "kivy.deps.sdl2",
-                         "kivy.deps.glew",
-                         "kivy.deps.gstreamer"
+                         "pygments"
                      ] +
-                     (["pylsl==1.10.5"] if os.sys.platform.startswith("linux") else ["pylsl"]),
+                     (["pylsl==1.10.5"] if os.sys.platform.startswith(
+                         "linux") else ["pylsl", "kivy.deps.glew", "kivy.deps.sdl2", "kivy.deps.gstreamer",
+                                        "pypiwin32"])
+
+    ,
     classifiers=[
         # How mature is this project?  Common values are
         #   3 - Alpha
@@ -65,8 +65,6 @@ setup(
         # Indicate who your project is intended for
         "Intended Audience :: Science/Research",
         "Topic :: Software Development",
-        # Pick your license as you wish (should match "license" above)
-        "License :: OSI Approved :: BSD License",
         # Specify the Python versions you support here.  In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         "Operating System :: Microsoft :: Windows",

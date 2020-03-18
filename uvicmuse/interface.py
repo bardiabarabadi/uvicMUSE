@@ -22,10 +22,11 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.switch import Switch
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.textinput import TextInput
-
+import os
 from uvicmuse.muse import Muse
 from uvicmuse.Backend import Backend
 
+import pkg_resources
 
 class UVicMuse(FloatLayout):
 
@@ -44,7 +45,8 @@ class UVicMuse(FloatLayout):
         self.backend = Backend(self.muse_backend)
 
         # Create UVic Muse Logo
-        self.img = Image(source='logo.png')
+        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'pngs/')
+        self.img = Image(source=DATA_PATH + '/logo.png')
 
         # Initiate Labels
         self.list_label1 = Label(text="", color=(0, 0, 0, 1), font_size=17)
@@ -60,7 +62,8 @@ class UVicMuse(FloatLayout):
                                           background_color=(.05, .5, .95, 1), on_press=self.update_status_stream,
                                           on_release=self.stream)
         self.stop_stream_button = Button(text="Stop Stream", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .45},
-                                         background_color=(.05, .5, .95, 1))
+                                         background_color=(.05, .5, .95, 1), on_press=self.update_status_stream,
+                                         on_release=self.stop_stream)
         self.LSL_label = Label(text="LSL", color=(.3, .3, 1, 1), font_size=14)
         self.EEG_label = Label(text="EEG", color=(.3, .3, 1, 1), font_size=14)
         self.PPG_label = Label(text="PPG", color=(.3, .3, 1, 1), font_size=14)
@@ -176,12 +179,15 @@ class UVicMuse(FloatLayout):
             self.backend.udp_stream_btn_callback((int)(self.get_port_entry()), self.get_host_entry(),
                                                  self.lowpass_checkbox.active, self.highpass_checkbox.active,
                                                  (float)(self.get_lowpass_cutoff()), (float)(self.get_highpass_cutoff())
-                                                 )
+                                                 , use_notch=True)  # TODO: Replace True with checkbox
             if self.backend.is_udp_streaming:
                 # print("connected and streaming on port " + str(self.get_port_entry()) + " " + self.get_host_entry())
                 print("streaming")
             else:
                 print("not streaming")
+
+    def stop_stream(self, event):
+        self.backend.udp_stop_btn_callback()
 
     def get_lowpass_cutoff(self):
         return float(self.lowpass_text.text)

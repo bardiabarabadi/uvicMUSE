@@ -5,17 +5,17 @@ figure
 
 dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'delete(gcbf)');
 
-PORT = 6060;
+PORT = 5050;
 EEG_OFFSET = 0;
-%PPG_OFFSET = 1;
+PPG_OFFSET = 3;
 
 
-udp_sock_eeg = udp('localhost',PORT+EEG_OFFSET, 'localport', PORT);
-%udp_sock_ppg = udp('localhost',PORT+PPG_OFFSET, 'localport', PORT+1);
+udp_sock_eeg = udp('localhost',PORT+EEG_OFFSET, 'localport', PORT+EEG_OFFSET);
+udp_sock_ppg = udp('localhost',PORT+PPG_OFFSET, 'localport', PORT+PPG_OFFSET);
 fopen (udp_sock_eeg);
-%fopen (udp_sock_ppg);
+fopen (udp_sock_ppg);
 
-display_arr = ones ([6,1500]);
+display_arr = ones ([6,1000]);
 
 A = zeros([6,1]);
 prv_A = 0;
@@ -67,7 +67,7 @@ D = parallel.pool.DataQueue;
 D.afterEach(@(display_arr) updateSurface(pl_1,pl_2,pl_3,pl_4,pl_5,pl_6, display_arr));
 
 while (ishandle(dialogBox))
-    if udp_sock_eeg.BytesAvailable ~= 0
+    if udp_sock_eeg.BytesAvailable ~= 0 || udp_sock_ppg.BytesAvailable ~= 0
         i=i+1;
         
         
@@ -91,11 +91,12 @@ while (ishandle(dialogBox))
         
         
     else
-        pause(0.2)
+        pause(0.002)
     end
 
 end
 disp ('Done')
 fclose (udp_sock_eeg);
+fclose (udp_sock_ppg);
 
 

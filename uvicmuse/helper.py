@@ -59,11 +59,10 @@ def list_muses(backend='bgapi', interface=None):
 def is_data_valid(data, timestamps):
     if timestamps == 0.0:
         return False
-
-    for i in range(data.shape[0] - 1):
-        if data[i] == 0.0:
-            return False
+    if all(data == 0.0):
+        return False
     return True
-  
+
+
 def PPG_error(Exceptions):
     pass
