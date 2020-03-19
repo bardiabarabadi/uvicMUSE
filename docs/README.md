@@ -26,6 +26,7 @@ To stream from MUSE to MATLAB ro other platforms, a _Streamer_ application is re
 Transmitted data from _Streamer_ side then can be received and used by the _Receiver_ application. 
 Take a look at this chart below:
 
+
 ![Top](image.png)
 
 This project has two sections, first, *UVic MUSE* that connects to MUSE 
