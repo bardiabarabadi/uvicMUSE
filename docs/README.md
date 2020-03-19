@@ -1,7 +1,7 @@
 
 # UVic MUSE
 
-A Python package for streaming from MUSE headsets to MATLAB and other 
+An application for streaming from MUSE headsets to MATLAB and other 
 platforms. 
 
 ## Requirements
@@ -30,9 +30,10 @@ Take a look at this chart below:
 
 This project has two sections, first, *UVic MUSE* that connects to MUSE 
 over Bluetooth and streams its data over UDP and LSL.
-Second, two classes (Python: `MuseUdp.py` & MATLAB: `MuseUdp.m`) that allow the user to receive 
-*UVic MUSE* transmitted data over UDP protocol. In the following sections we go through installation and usage of *UVic MUSE*
-and then explain about part two, receivers.   
+Second, a MATLAB toolbox (and `MuseUdp.m`) that allows the user to receive 
+*UVic MUSE* transmitted data over UDP protocol. 
+In the following sections we go through installation and usage of *UVic MUSE*
+and then explain about part two, MuseUdp.   
 
 ### UVic MUSE Installation
 
@@ -92,12 +93,12 @@ Notes:
 * Search is required after disconnecting from a MUSE 
 
 
-## Receiver Class
+## Receiver Toolbox (MuseUdp)
 
-In this section we explain the methods available in the MATLAB and Python receiver classes. The main responsibility of a receiver
+In this section we explain the methods available in the MATLAB toolbox. The main responsibility of a receiver
 is to connect to UDP socket (same socket as UVic MUSE) and receive data that is being transmitted from MUSE device.
 
-#### MATLAB
+#### MATLAB Toolbox
 
 Donwload [MuseUdp Toolbox](https://www.mathworks.com/matlabcentral/fileexchange/74583-museudp) from MATLAB file exchange. 
 Open and install the toolbox on MATLAB. Moreover, you need to install [Instrument Control Toolbox](https://www.mathworks.com/products/instrument.html)
@@ -119,7 +120,11 @@ channels per sample, the rest of the sensors return 3 channels data.
 To read sampled data in chunks, you need to specify the chunk size and call `mu.get_xxx_chunk(###)`, replace `xxx` with sensor type
 and `###` with the chunk size. The output size, `size(data)`, will be `[chunk_size, 5]` for `eeg` and `[chunk_size, 3]` for others. 
 
-*Note: since the buffer size is limited for UDP protocols,  
+*Note: since the buffer size is limited for UDP protocols, each sample of `eeg` contains four bytes for timestamp and
+4 * 5 = 20 bytes for data (24B total). Since default buffer size in UDP is 1kB, one cannot get a chunk larger that 40 samples.
+We suggest using multiple instances of `get_xxx_chunk()`, but you can change the buffer size by calling the function below:
+    
+    mu.set_udp_buffer_size(2048) % 2kB buffer
 
 ## Citing UVicMUSE
 
