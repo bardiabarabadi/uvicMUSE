@@ -5,6 +5,7 @@ import sys
 import pygatt
 from functools import partial
 import socket
+import os
 from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.button import Button
@@ -21,12 +22,16 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.switch import Switch
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.textinput import TextInput
-import os
+from kivy.uix.dropdown import DropDown 
+from kivy.uix.spinner import Spinner
 from uvicmuse.muse import Muse
 from .Backend import Backend
 import pkg_resources
+# from kivy.core.window import Window
+# Window.clearcolor = (0.1, 0.1, 0.1, 1)
 
 
+#Frontend Test Branch
 class UVicMuse(FloatLayout):
 
     def __init__(self, **kwargs):
@@ -41,26 +46,32 @@ class UVicMuse(FloatLayout):
         self.muse_backend = 'bgapi'
         self.host_address = 'localhost'
         self.backend = Backend(self.muse_backend)
+        self.current_muse_id = 0
 
         # Create UVic Muse Logo
         DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
         self.img = Image(source=os.path.join(DATA_PATH, 'logo.png'))
 
         # Initiate Labels
-        self.list_label1 = Label(text="", color=(0, 0, 0, 1), font_size=17)
-        self.list_label2 = Label(text="", color=(0, 0, 0, 1), font_size=17)
-        self.list_label3 = Label(text="", color=(0,0,0,1), font_size = 17)
-        self.status_label = Label(text="Press Search to Look For Muse", color=(.05, .5, .95, 1), font_size=14)
+        self.status_label = Label(text="Press Search to Look For Nearby Muse                                                ", color=(.05, .5, .95, 1), font_size=14)
         self.canvas.add(Rectangle(size=(570, 250), pos=(25, 225), color=(1, 1, 1, 1)))
         self.search_button = Button(text="Search", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .65},
-                                    background_color=(.05, .5, .95, 1), on_release=self.search_logic,
-                                    on_press=self.update_status_search)
+                                    background_color=(.05, .5, .95, 1),on_press= self.update_status_search, on_release=self.search)
+
+        # Initiate Buttons and bind press and release to functions
         self.start_stream_button = Button(text="Start Stream", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .55},
-                                          background_color=(.05, .5, .95, 1), on_press=self.update_status_stream,
+                                          background_color=(.05, .5, .95, 1),
                                           on_release=self.stream)
         self.stop_stream_button = Button(text="Stop Stream", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .45},
-                                         background_color=(.05, .5, .95, 1), on_press=self.update_status_stream,
+                                         background_color=(.05, .5, .95, 1),
                                          on_release=self.stop_stream)
+
+        self.connect_button = Button(text = "Connect",size_hint=(.13, .08), pos_hint={'x': 0.6, 'y': .65},
+                                    background_color=(.05, .5, .95, 12), on_release = self.connect)
+
+
+        self.disconnect_button = Button(text = "Disonnect",size_hint=(.13, .08), pos_hint={'x': 0.6, 'y': .51},
+                                    background_color=(.05, .5, 0.95, 12), on_release = self.disconnect)
 
         self.LSL_label = Label(text="LSL", color=(.3, .3, 1, 1), font_size=14)
         self.EEG_label = Label(text="EEG", color=(.3, .3, 1, 1), font_size=14)
@@ -73,36 +84,10 @@ class UVicMuse(FloatLayout):
         self.lowpass_cutoff = Label(text="Cutoff", color=(.3, .3, 1, 1), font_size=14)
         self.highpass_cutoff = Label(text="Cutoff", color=(.3, .3, 1, 1), font_size=14)
 
-        # Initiate Buttons and bind press and release to functions
-        self.connect_button1 = Button(text="Connect", size_hint=(.112, .059), pos_hint={'x': .56, 'y': .725},
-                                      background_color=(.05, .5, .95, 1))
-        self.connect_button1.bind(on_press=partial(self.update_status_connect, 'connect1'),
-                                  on_release=partial(self.connect, 'connect1'))
-
-        self.disconnect_button1 = Button(text="Disconnect", size_hint=(.112, .059), pos_hint={'x': .68, 'y': .725},
-                                         background_color=(.05, .5, .95, 1))
-        self.disconnect_button1.bind(on_press=partial(self.update_status_connect, 'disconnect1'),
-                                     on_release=partial(self.disconnect, 'disconnect1'))
-
-        self.connect_button2 = Button(text="Connect", size_hint=(.112, .059), pos_hint={'x': .56, 'y': .59},
-                                      background_color=(.05, .5, .95, 1))
-        self.connect_button2.bind(on_press=partial(self.update_status_connect, 'connect2'),
-                                  on_release=partial(self.connect, 'connect2'))
-
-        self.disconnect_button2 = Button(text="Disconnect", size_hint=(.112, .059), pos_hint={'x': .68, 'y': .59},
-                                         background_color=(.05, .5, .95, 1))
-        self.disconnect_button2.bind(on_press=partial(self.update_status_connect, 'disconnect2'),
-                                     on_release=partial(self.disconnect, 'disconnect2'))
-
-        self.connect_button3 = Button(text="Connect", size_hint=(.112, .059), pos_hint={'x': .56, 'y': .45},
-                                      background_color=(.05, .5, .95, 1))
-        self.connect_button3.bind(on_press=partial(self.update_status_connect, 'connect3'),
-                                  on_release=partial(self.connect, 'connect3'))
-
-        self.disconnect_button3 = Button(text="Disconnect", size_hint=(.112, .059), pos_hint={'x': .68, 'y': .45},
-                                         background_color=(.05, .5, .95, 1))
-        self.disconnect_button3.bind(on_press=partial(self.update_status_connect, 'disconnect3'),
-                                     on_release=partial(self.disconnect, 'disconnect3'))        
+        #initiate List with max height
+        self.list_box = Spinner(text = "Press for List of Available Muses", values = '', size_hint = (0.5,0.08), pos_hint = {'x': 0.03, 'y':.65} , background_color = (0.3,0.3,1,1) )
+        self.list_box.dropdown_cls.max_height = self.list_box.height* 1.6
+        
 
         # Initiate Checkbox's
         self.LSL_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02)
@@ -119,6 +104,8 @@ class UVicMuse(FloatLayout):
                                       multiline=False, text='30', write_tab=False)
         self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.61, "y": 0.055}, size_hint=(0.07, 0.043),
                                        multiline=False, text='0.1', write_tab=False)
+
+        
 
         # add widgets that have been initiated to frame
         self.add_widget(self.img)
@@ -146,17 +133,19 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.highpass_cutoff)
         self.add_widget(self.notch_checkbox)
         self.add_widget(self.notch_label)
+        self.add_widget(self.connect_button)
+        self.add_widget(self.disconnect_button)
+        self.add_widget(self.list_box)
 
         # Adjust positions of widgets that have been added to the frame
         self.img.pos = (0, 220)
-        self.status_label.pos = (-250, -90)
+        self.status_label.pos = (-155, -90)
         self.LSL_label.pos = (-272, -153)
         self.EEG_label.pos = (-164, -153)
         self.PPG_label.pos = (-56, -153)
         self.ACC_label.pos = (52, -153)
         self.GYRO_label.pos = (160, -153)
         self.notch_label.pos = (267, -153)
-
         self.LSL_checkbox.pos = (95, 122)
         self.EEG_checkbox.pos = (203, 122)
         self.PPG_checkbox.pos = (311, 122)
@@ -171,39 +160,54 @@ class UVicMuse(FloatLayout):
         self.notch_checkbox.pos = (635, 122)
 
         #initial state
-        self.PPG_checkbox.disabled = False
-        self.LSL_checkbox.disabled = False
-        self.EEG_checkbox.disabled = False
-        self.ACC_checkbox.disabled = False
-        self.GYRO_checkbox.disabled =False
-        self.notch_checkbox.disabled = False
-        self.lowpass_checkbox.disabled = False
-        self.highpass_checkbox.disabled = False  
-        self.highpass_text.disabled = False
-        self.lowpass_text.disabled = False 
-        self.start_stream_button.disabled = True 
-        self.stop_stream_button.disabled = True 
-        self.disconnect_button1.disabled = True 
-        self.disconnect_button2.disabled = True
-        self.disconnect_button3.disabled = True
-
-    # logic
-    def update_status_stop(self, event):
-        self.status_label.text = "Stream stopped          "
-    def update_status_stream(self, event):
-        self.status_label.text = "Starting UDP stream     "
-
-    def stream(self, event): 
+        self.PPG_checkbox.disabled = True 
         self.LSL_checkbox.disabled = True
-        self.EEG_checkbox.disabled =True
-        self.start_stream_button.disabled = True 
-        self.stop_stream_button.disabled = False
+        self.EEG_checkbox.disabled = True
+        self.ACC_checkbox.disabled = True
         self.GYRO_checkbox.disabled = True
         self.notch_checkbox.disabled = True
         self.lowpass_checkbox.disabled = True
         self.highpass_checkbox.disabled = True  
         self.highpass_text.disabled = True
         self.lowpass_text.disabled = True
+        self.start_stream_button.disabled = True
+        self.stop_stream_button.disabled = True
+        self.connect_button.disabled = True
+        self.disconnect_button.disabled = True
+
+    #logic
+    
+    #As Search takes 10 seconds, update the status before the process begins
+    def update_status_search(self, event):
+        self.status_label.text = "Searching for nearby Muses, this may take up to ten seconds..."
+
+    #Function to change state of all components
+    def button_state(self, connect_state, disconnect_state, search_state, 
+                    stream_state, stop_state, LSL_state, EEG_state, PPG_state, 
+                    ACC_state, GYRO_state, Notch_state, Lowpass_check_state, 
+                    lowpass_cut_state, highpass_check_state, highpass_cut_state, list_box_state):
+        self.connect_button.disabled = connect_state
+        self.disconnect_button.disabled = disconnect_state
+        self.search_button.disabled = search_state
+        self.start_stream_button.disabled = stream_state 
+        self.stop_stream_button.disabled = stop_state
+        self.LSL_checkbox.disabled = LSL_state
+        self.EEG_checkbox.disabled = EEG_state
+        self.PPG_checkbox.disabled = PPG_state
+        self.ACC_checkbox.disabled = ACC_state
+        self.GYRO_checkbox.disabled = GYRO_state
+        self.notch_checkbox.disabled = Notch_state
+        self.lowpass_checkbox.disabled = Lowpass_check_state
+        self.lowpass_text.disabled = lowpass_cut_state
+        self.highpass_checkbox.disabled = highpass_cut_state
+        self.highpass_text.disabled = highpass_cut_state
+        self.list_box.disabled = list_box_state
+
+    #Function for starting Data Stream
+    def stream(self, event):
+        self.button_state(True, True, True, True, False, True, True, True,
+            True, True, True, True, True, True, True, True)
+
         if not (self.did_connect):
             self.status_label.text = "Not connnected to Muse, please connect"
         else:
@@ -214,25 +218,19 @@ class UVicMuse(FloatLayout):
                 high_pass_cutoff=(float)(self.get_highpass_cutoff()),
                 use_notch=self.get_notch_checkbox,)
             if self.backend.is_udp_streaming:
-                print("streaming")
+                self.status_label.text = "Streaming Data"
             else:
-                print("not streaming")
+                self.status_label.text = "Unsuccessful streaming attempt"
 
+    #Function for stopping Data Stream
     def stop_stream(self, event):
-        self.notch_checkbox.disabled = False
-        self.EEG_checkbox.disabled = False
-        self.LSL_checkbox.disabled = False
-        self.lowpass_checkbox.disabled = False
-        self.highpass_checkbox.disabled = False 
-        self.highpass_text.disabled = False
-        self.lowpass_text.disabled = False
-        self.start_stream_button.disabled = False
-        self.stop_stream_button.disabled = True
-        if not (self.did_connect):
-            self.status_label.text = "Not connnected to Muse, please connect"        
-        self.backend.udp_stop_btn_callback()
-        self.status_label.text = "Disconected from Muse                 "
+        self.button_state(True, False, True, False, True, False, False, True, True, True, 
+            False, False, False, False, False, True)
 
+        if not (self.did_connect):
+            self.status_label.text = "Not connnected to  a Muse, please connect"        
+        self.backend.udp_stop_btn_callback()
+        self.status_label.text = "Data stream has been stopped"
 
     def get_lowpass_cutoff(self):
         return float(self.lowpass_text.text)
@@ -273,203 +271,63 @@ class UVicMuse(FloatLayout):
     def get_host_entry(self):
         return str(self.host_text.text)
 
-    def update_status_connect(self, button, event):
-        if (button) == 'connect1':
-            self.status_label.text = "Connecting to " + str(self.muses[0]['name'] + "            ")
-        if (button) == 'disconnect1':
-            self.status_label.text = "Disconnecting from " + str(self.muses[0]['name'])
-        if (button) == 'connect2':
-            self.status_label.text = "Connecting to " + str(self.muses[1]['name'] + "            ")
-        if (button) == 'disconnect2':
-            self.status_label.text = "Disconnecting from " + str(self.muses[1]['name'])
+    #Function for Connecting to selected Muse in Dropdown list
+    def connect(self, event):
+        try:
+            self.button_state(True, False, True, False, True, 
+                False, False, True, True, True, 
+                False, False, False, False, False, True)
 
-    def connect(self, button, event):
-        self.PPG_checkbox.disabled = True
-        self.LSL_checkbox.disabled = False
-        self.EEG_checkbox.disabled = False
-        self.ACC_checkbox.disabled = True
-        self.GYRO_checkbox.disabled = True
-        self.notch_checkbox.disabled = False
-        self.lowpass_checkbox.disabled = False
-        self.highpass_checkbox.disabled = False
-        self.highpass_text.disabled = False
-        self.lowpass_text.disabled = False 
-        self.start_stream_button.disabled = False
-        self.search_button.disabled = True 
-
-        if (button) == "connect1":
-            self.disconnect_button1.disabled = False
-            self.disconnect_button2.disabled = True 
-            self.disconnect_button3.disabled = True
-            self.connect_button1.disabled = True
-            self.connect_button2.disabled = True 
-            self.connect_button3.disabled = True
+            self.current_muse_id = self.list_box.values.index(self.list_box.text)
             if (self.backend.is_connected()):
-                self.status_label.text = "Already Connected to Muse"
+                self.status_label.text = "Already connected to a Muse"
             else:
-                self.backend.connect_btn_callback(0, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
+                self.backend.connect_btn_callback(self.current_muse_id, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
                                                   self.get_ACC_checkbox(), self.get_GYRO_checkbox())
                 self.did_connect = self.backend.is_connected()
                 if (self.did_connect):
-                    self.status_label.text = "Successfully connected to " + str(self.muses[0]['name'])
+                    self.status_label.text = "                    Successfully connected to " + str(self.muses[0]['name'] + ", select filters to stream data with")
                     self.connected_address = self.muses[0]['address']
-                    print(self.connected_address)
                 else:
-                    self.status_label.text = "Unsuccessful connection attempt"
+                    self.status_label.text = "Unsuccessful connection attempt, make sure Muse is turned on                                     "
+        except:
+            self.status_label.text = "                        Please select a Muse from the dropdown menu before connecting"
+            self.button_state( False, True, False, 
+                   True, True, True, True, False, 
+                    False, False,True, True, 
+                    True, True, True, False)
+    
+    #Function for Disconnecting from connected Muse
+    def disconnect(self, event):
+        self.button_state(False, True, 
+                   False, True, True, False, False, 
+                    False, False,False, False, 
+                    False, False, False, False, False)
 
-        if (button) == "connect2":
-            self.disconnect_button2.disabled = False
-            self.disconnect_button1.disabled = True
-            self.disconnect_button3.disabled = True
-            self.connect_button1.disabled = True
-            self.connect_button2.disabled = True 
-            self.connect_button3.disabled = True
-            if (self.backend.is_connected()):
-                self.status_label.text = "Already Connected to Muse"
-            else:
-                self.backend.connect_btn_callback(1, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
-                                                  self.get_ACC_checkbox(), self.get_GYRO_checkbox())
-                self.did_connect = self.backend.is_connected()
-                if (self.did_connect):
-                    self.status_label.text = "Succesfully connected to " + str(self.muses[1]['name'])
-                    self.connected_address = self.muses[1]['address']
-                    print(self.connected_address)
-                else:
-                    self.status_label.text = "Unsuccessful connection attempt"
+        self.backend.disconnect_btn_callback()
+        self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id]['name'] + "                                                                 ")
 
-        if (button) == "connect3":
-            self.disconnect_button3.disabled = False
-            self.disconnect_button2.disabled = True
-            self.disconnect_button1.disabled = True
-            self.connect_button1.disabled = True
-            self.connect_button2.disabled = True 
-            self.connect_button3.disabled = True
-            if (self.backend.is_connected()):
-                self.status_label.text = "Already Connected to Muse"
-            else:
-                self.backend.connect_btn_callback(1, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
-                                                  self.get_ACC_checkbox(), self.get_GYRO_checkbox())
-                self.did_connect = self.backend.is_connected()
-                if (self.did_connect):
-                    self.status_label.text = "Succesfully connected to " + str(self.muses[2]['name'])
-                    self.connected_address = self.muses[2]['address']
-                    print(self.connected_address)
-                else:
-                    self.status_label.text = "Unsuccessful connection attempt"       
+    #Function for Searching for nearby Muses 
+    def search(self, event):
+        self.button_state( False, True, False, 
+                   True, True, True, True, False, 
+                    False, False,True, True, 
+                    True, True, True, False)
 
-
-    def disconnect(self, button, event):
-        self.connect_button1.disabled = False
-        self.connect_button2.disabled = False
-        self.connect_button3.disabled = False
-        self.disconnect_button1.disabled = True 
-        self.disconnect_button2.disabled = True
-        self.disconnect_button1.disabled = True
-        self.search_button.disabled = False
-        self.start_stream_button.disabled = True
-        self.stop_stream_button.disabled = True
-        self.PPG_checkbox.disabled = False
-        self.LSL_checkbox.disabled = False
-        self.EEG_checkbox.disabled = False
-        self.ACC_checkbox.disabled = False
-        self.GYRO_checkbox.disabled =False
-
-        if (button) == 'disconnect1':
-            if (self.backend.disconnect_btn_callback()):
-                self.status_label.text = "Disconnected from " + str(self.muses[0]['name'])
-            else:
-                self.status_label.text = "Not connected to a Muse"
-
-        if (button) == 'disconnect2':
-            if (self.backend.disconnect_btn_callback()):
-                self.status_label.text = "Disconnected from " + str(self.muses[1]['name'])
-            else:
-                self.status_label.text = "Not connected to a Muse"
-
-    def update_status_search(self, event, ):
-        self.status_label.text = "Searching For Muse, Please Wait"
-
-    def search_logic(self, event):
         self.muses, succeed = self.backend.refresh_btn_callback()
-        devices = (len(self.muses))
-        if (devices) == 1:
-            self.status_label.text = " 1 device was found                            "
-        else:
-            self.status_label.text = str(devices) + " devices were found                        "
-        if (devices) == 1:
-            try:
-                self.add_widget(self.list_label1)
-                self.list_label1.pos = (-170, 150)
-                self.list_label1.text = str(self.muses[0]['name']) + ", Mac Address " + str(self.muses[0]['address'])
-                self.add_widget(self.connect_button1)
-                self.add_widget(self.disconnect_button1)
-            except:
-                self.remove_widget(self.list_label1)
-                self.remove_widget(self.connect_button1)
-                self.remove_widget(self.disconnect_button1)
-                self.add_widget(self.list_label1)
-                self.list_label1.pos = (-170, 150)
-                self.list_label1.text = str(self.muses[0]['name']) + ", Mac Address " + str(self.muses[0]['address'])
-                self.add_widget(self.connect_button1)
-                self.add_widget(self.disconnect_button1)                
-        if (devices) == 2:
-            try:
-                self.add_widget(self.list_label1)
-                self.list_label1.pos = (-170, 150)
-                self.list_label1.text = str(self.muses[0]['name']) + ", Mac Address " + str(self.muses[0]['address'])
-                self.add_widget(self.connect_button1)
-                self.add_widget(self.disconnect_button1)
-                self.add_widget(self.list_label2)
-                self.list_label2.pos = (-170, 70)
-                self.list_label2.text = str(self.muses[1]['name']) + ", Mac Address " + str(self.muses[1]['address'])
-                self.add_widget(self.connect_button2)
-                self.add_widget(self.disconnect_button2)
-            except:
-                self.remove_widget(self.list_label1)
-                self.remove_widget(self.connect_button1)
-                self.remove_widget(self.disconnect_button1)
-                self.remove_widget(self.list_label2)
-                self.remove_widget(self.connect_button2)
-                self.remove_widget(self.disconnect_button2)
-                self.list_label1.pos = (-170, 150)
-                self.list_label1.text = str(self.muses[0]['name']) + ", Mac Address " + str(self.muses[0]['address'])
-                self.list_label2.pos = (-170, 70)
-                self.list_label2.text = str(self.muses[1]['name']) + ", Mac Address " + str(self.muses[1]['address'])                
-        if(devices) == 3:
-            try:
-                self.add_widget(self.list_label1)
-                self.list_label1.pos = (-170, 150)
-                self.list_label1.text = str(self.muses[0]['name']) + ", Mac Address " + str(self.muses[0]['address'])
-                self.add_widget(self.connect_button1)
-                self.add_widget(self.disconnect_button1)
-                self.add_widget(self.list_label2)
-                self.list_label2.pos = (-170, 70)
-                self.list_label2.text = str(self.muses[1]['name']) + ", Mac Address " + str(self.muses[1]['address'])
-                self.add_widget(self.connect_button2)
-                self.add_widget(self.disconnect_button2)  
-                self.add_widget(self.list_label3)
-                self.list_label3.pos = (-170, -10)
-                self.list_label3.text = str(self.muses[2]['name']) + ", Mac Address " + str(self.muses[2]['address'])
-                self.add_widget(self.connect_button3)
-                self.add_widget(self.disconnect_button3)
-            except:
-                self.remove_widget(self.list_label1)
-                self.remove_widget(self.connect_button1)
-                self.remove_widget(self.disconnect_button1)
-                self.remove_widget(self.list_label2)
-                self.remove_widget(self.connect_button2)
-                self.remove_widget(self.disconnect_button2) 
-                self.remove_widget(self.list_label3)
-                self.remove_widget(self.connect_button3)
-                self.remove_widget(self.disconnect_button3)     
-                self.list_label1.pos = (-170, 150)
-                self.list_label1.text = str(self.muses[0]['name']) + ", Mac Address " + str(self.muses[0]['address'])
-                self.list_label2.pos = (-170, 70)
-                self.list_label2.text = str(self.muses[1]['name']) + ", Mac Address " + str(self.muses[1]['address'])
-                self.list_label3.pos = (-170, -10)
-                self.list_label3.text = str(self.muses[2]['name']) + ", Mac Address " + str(self.muses[2]['address'])              
-                     
+        self.vals = []
+        for i in range(len(self.muses)):
+            self.vals.append(self.muses[i]['name'] + " Mac Address " + str(self.muses[i]['address']))
 
+        if(len(self.muses)) == 0:
+            self.status_label.text = "No nearby devices were found, please try again                               "
+        if(len(self.muses)) == 1:
+            self.status_label.text = "1 device was found, please choose sensors to connect with       "
+        if(len(self.muses)) > 1:
+            self.status_label.text = str(len(self.muses)) + "Devices were found, please choose sensors to connect with       "
+
+        self.list_box.values = self.vals
+             
 class Muse(App):
     def build(self):
         return UVicMuse()
