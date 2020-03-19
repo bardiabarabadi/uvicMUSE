@@ -27,8 +27,9 @@ from kivy.uix.spinner import Spinner
 from uvicmuse.muse import Muse
 from .Backend import Backend
 import pkg_resources
+
 # from kivy.core.window import Window
-# Window.clearcolor = (0.1, 0.1, 0.1, 1)
+# Window.clearcolor = (1, 1, 1, 1)
 
 
 #Frontend Test Branch
@@ -105,9 +106,9 @@ class UVicMuse(FloatLayout):
         self.notch_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
 
         # Initiate textbox's to enter text
-        self.lowpass_text = TextInput(font_size=13, pos_hint={"x": 0.85, "y": 0.225}, size_hint=(0.07, 0.043),
+        self.lowpass_text = TextInput(font_size=13, pos_hint={"x": 0.795, "y": 0.225}, size_hint=(0.07, 0.043),
                                       multiline=False, text='30', write_tab=False)
-        self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.85, "y": 0.092}, size_hint=(0.07, 0.043),
+        self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.795, "y": 0.092}, size_hint=(0.07, 0.043),
                                        multiline=False, text='0.1', write_tab=False)
 
         
@@ -133,8 +134,8 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.highpass_label)
         self.add_widget(self.lowpass_checkbox)
         self.add_widget(self.highpass_checkbox)
-        self.add_widget(self.lowpass_cutoff)
-        self.add_widget(self.highpass_cutoff)
+        # self.add_widget(self.lowpass_cutoff)
+        # self.add_widget(self.highpass_cutoff)
         self.add_widget(self.notch_checkbox)
         self.add_widget(self.notch_label)
         self.add_widget(self.connect_button)
@@ -238,7 +239,7 @@ class UVicMuse(FloatLayout):
 
     #Function for stopping Data Stream
     def stop_stream(self, event):
-        self.button_state(True, False, True, False, True, False, False, True, True, True, 
+        self.button_state(True, False, True, False, True, False, True, True, True, True, 
             False, False, False, False, False, True)       
         self.backend.udp_stop_btn_callback()
         self.status_label.text = "Data stream has been stopped                                                                  "
@@ -286,7 +287,7 @@ class UVicMuse(FloatLayout):
     def connect(self, event):
         try:
             self.button_state(True, False, True, False, True, 
-                False, False, True, True, True, 
+                False, True, True, True, True, 
                 False, False, False, False, False, True)
 
             self.current_muse_id = self.list_box.values.index(self.list_box.text)
@@ -302,7 +303,7 @@ class UVicMuse(FloatLayout):
         except:
             self.status_label.text = "                      Please select a Muse from the dropdown menu before connecting                "
             self.button_state( False, True, False, 
-                   True, True, True, True, False, 
+                   True, True, True, False, False, 
                     False, False,True, True, 
                     True, True, True, False)
     
@@ -313,6 +314,7 @@ class UVicMuse(FloatLayout):
                     False, False,False, False, 
                     False, False, False, False, False)
 
+
         self.backend.disconnect_btn_callback()
         self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id]['name'] + "                                                                 ")
 
@@ -320,7 +322,7 @@ class UVicMuse(FloatLayout):
     def search(self, event):
         try:
             self.button_state( False, True, False, 
-                   True, True, True, True, False, 
+                   True, True, True, False, False, 
                     False, False,True, True, 
                     True, True, True, False)
 
