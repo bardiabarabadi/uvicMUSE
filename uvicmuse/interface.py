@@ -24,9 +24,10 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.textinput import TextInput
 import os
 from uvicmuse.muse import Muse
-from uvicmuse.Backend import Backend
+from .Backend import Backend
 
 import pkg_resources
+
 
 class UVicMuse(FloatLayout):
 
@@ -46,7 +47,6 @@ class UVicMuse(FloatLayout):
         # Create UVic Muse Logo
         DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
         self.img = Image(source=os.path.join(DATA_PATH, 'logo.png'))
-
 
         # Initiate Labels
         self.list_label1 = Label(text="", color=(0, 0, 0, 1), font_size=17)
@@ -164,9 +164,11 @@ class UVicMuse(FloatLayout):
         else:
             print("stream")
             self.backend.udp_stream_btn_callback(
-                                                 self.lowpass_checkbox.active, self.highpass_checkbox.active,
-                                                 (float)(self.get_lowpass_cutoff()), (float)(self.get_highpass_cutoff())
-                                                 , use_notch=True)  # TODO: Replace True with checkbox
+                use_low_pass=self.lowpass_checkbox.active,
+                use_high_pass=self.highpass_checkbox.active,
+                low_pass_cutoff=(float)(self.get_lowpass_cutoff()),
+                high_pass_cutoff=(float)(self.get_highpass_cutoff()),
+                use_notch=True,)  # TODO: Replace True with checkbox
             if self.backend.is_udp_streaming:
                 print("streaming")
             else:

@@ -85,13 +85,41 @@ before moving on to the next step.
 
 1. Search to get a list of available MUSEs
 2. Connect to one of the MUSEs. **Required Entries** = Checkboxes (UDP, LSL, EEG, PPG, ACC, GYRO) 
-3. Start Streaming over UDP and LSL (if enabled). **Required Entries** = Filters (Highpass, Lowpass, Notch), UDP (Address, Port)
+3. Start Streaming over UDP and LSL (if enabled). **Required Entries** = Filters (Highpass, Lowpass, Notch)
 
 Notes:
-* The UDP port should be the same as you use in `MuseUdp.m` and `MuseUdp.py`
-* Stopping the stream won't disconnect the MUSE (use this feature for changin UDP port or filters)
+* Stopping the stream won't disconnect the MUSE (use this feature for changing filters configurations)
 * Search is required after disconnecting from a MUSE 
 
+
+## Receiver Class
+
+In this section we explain the methods available in the MATLAB and Python receiver classes. The main responsibility of a receiver
+is to connect to UDP socket (same socket as UVic MUSE) and receive data that is being transmitted from MUSE device.
+
+#### MATLAB
+
+Donwload [MuseUdp Toolbox](https://www.mathworks.com/matlabcentral/fileexchange/74583-museudp) from MATLAB file exchange. 
+Open and install the toolbox on MATLAB. Moreover, you need to install [Instrument Control Toolbox](https://www.mathworks.com/products/instrument.html)
+ to establish UDP connections.
+ 
+To see all of the available methods (functions), create an object from MuseUdp and call methods for it:
+
+    mu = MuseUdp();
+    methods(mu);
+
+To get a single sample from UVic MUSE use:
+    
+    mu = MuseUdp();
+    [data, timestamp, success] = mu.get_xxx_sample()
+
+Repace `xxx`with `eeg`, `ppg`, `acc` or `gyro`. The sampled data may have different size according to `xxx`, `eeg` has 5 
+channels per sample, the rest of the sensors return 3 channels data. 
+
+To read sampled data in chunks, you need to specify the chunk size and call `mu.get_xxx_chunk(###)`, replace `xxx` with sensor type
+and `###` with the chunk size. The output size, `size(data)`, will be `[chunk_size, 5]` for `eeg` and `[chunk_size, 3]` for others. 
+
+*Note: since the buffer size is limited for UDP protocols,  
 
 ## Citing UVicMUSE
 

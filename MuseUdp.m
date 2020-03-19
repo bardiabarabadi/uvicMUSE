@@ -14,6 +14,7 @@ classdef MuseUdp
         use_ppg
         use_acc
         use_gyro
+        udp_buffer_size = 1024;
     end
     
     properties (Constant)
@@ -34,11 +35,17 @@ classdef MuseUdp
                 obj.udp_port_base = 1963;
             end
             
-            obj.use_eeg = use_eeg;
-            obj.use_ppg = use_ppg;
-            obj.use_acc = use_acc;
-            obj.use_gyro = use_gyro;
-            
+            if nargin == 0
+                obj.use_eeg = true;
+                obj.use_ppg = true;
+                obj.use_acc = true;
+                obj.use_gyro = true;
+            else
+                obj.use_eeg = use_eeg;
+                obj.use_ppg = use_ppg;
+                obj.use_acc = use_acc;
+                obj.use_gyro = use_gyro;
+            end
             obj.udp_address = 'localhost';
             
             %try
@@ -74,7 +81,7 @@ classdef MuseUdp
                     'localport', obj.udp_port_base+MuseUdp.EEG_OFFSET);
                 obj.udp_sock_eeg.Timeout = MuseUdp.timeout;
                 obj.udp_sock_eeg.ByteOrder = 'littleEndian';
-                
+                obj.udp_sock_eeg.InputBufferSize = obj.udp_buffer_size;
                 fopen(obj.udp_sock_eeg);
             end
             
@@ -84,6 +91,7 @@ classdef MuseUdp
                     'localport', obj.udp_port_base+MuseUdp.PPG_OFFSET);
                 obj.udp_sock_ppg.Timeout = MuseUdp.timeout;
                 obj.udp_sock_ppg.ByteOrder = 'littleEndian';
+                obj.udp_sock_ppg.InputBufferSize = obj.udp_buffer_size;
                 fopen(obj.udp_sock_ppg);
             end
             
@@ -93,6 +101,7 @@ classdef MuseUdp
                     'localport', obj.udp_port_base+MuseUdp.ACC_OFFSET);
                 obj.udp_sock_acc.Timeout = MuseUdp.timeout;
                 obj.udp_sock_acc.ByteOrder = 'littleEndian';
+                obj.udp_sock_acc.InputBufferSize = obj.udp_buffer_size;
                 fopen(obj.udp_sock_acc);
             end
             
@@ -102,6 +111,7 @@ classdef MuseUdp
                     'localport', obj.udp_port_base+MuseUdp.GYRO_OFFSET);
                 obj.udp_sock_gyro.Timeout = MuseUdp.timeout;
                 obj.udp_sock_gyro.ByteOrder = 'littleEndian';
+                obj.udp_sock_gyro.InputBufferSize = obj.udp_buffer_size;
                 fopen(obj.udp_sock_gyro);
             end
             
@@ -189,7 +199,7 @@ classdef MuseUdp
                 
                 [data_t, ts_t, success_t] = obj.get_eeg_sample();
                 
-                if ~success_t; success = false; return; end
+                if ~success_t; success = false; end
                 data(c,:) = data_t;
                 ts(c) = ts_t;
                 
@@ -207,7 +217,7 @@ classdef MuseUdp
                 
                 [data_t, ts_t, success_t] = obj.get_ppg_sample();
                 
-                if ~success_t; success = false; return; end
+                if ~success_t; success = false; end
                 data(c,:) = data_t;
                 ts(c) = ts_t;
                 
@@ -225,7 +235,7 @@ classdef MuseUdp
                 
                 [data_t, ts_t, success_t] = obj.get_acc_sample();
                 
-                if ~success_t; success = false; return; end
+                if ~success_t; success = false; end
                 data(c,:) = data_t;
                 ts(c) = ts_t;
                 
@@ -243,12 +253,17 @@ classdef MuseUdp
                 
                 [data_t, ts_t, success_t] = obj.get_gyro_sample();
                 
-                if ~success_t; success = false; return; end
+                if ~success_t; success = false; end
                 data(c,:) = data_t;
                 ts(c) = ts_t;
                 
             end
             return
+        end
+        
+        function obj = set_udp_buffer_size (obj, udp_buffer_size)
+            obj.udp_buffer_size = udp_buffer_size;
+            obj = obj.refresh_connection();            
         end
         
         function delete(obj)

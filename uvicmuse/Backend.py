@@ -95,11 +95,10 @@ class Backend:
     # - MUSE interface functions
 
     # + UDP interface functions
-    # noinspection PyTupleAssignmentBalance
-    def udp_stream_btn_callback(self, udp_port, udp_address, use_low_pass, use_high_pass, low_pass_cutoff,
+    def udp_stream_btn_callback(self, use_low_pass, use_high_pass, low_pass_cutoff,
                                 high_pass_cutoff, use_notch):
-        self.udp_port = udp_port
-        self.udp_address = udp_address
+        self.udp_port = 1963
+        self.udp_address = 'localhost'
         self.is_udp_streaming = True
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.use_low_pass = use_low_pass
