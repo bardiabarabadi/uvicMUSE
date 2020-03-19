@@ -28,8 +28,8 @@ from uvicmuse.muse import Muse
 from .Backend import Backend
 import pkg_resources
 
-# from kivy.core.window import Window
-# Window.clearcolor = (1, 1, 1, 1)
+from kivy.core.window import Window
+Window.clearcolor = (.1, 0.1, 0.1, 0.1)
 
 
 #Frontend Test Branch
