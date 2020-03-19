@@ -27,7 +27,7 @@ Transmitted data from _Streamer_ side then can be received and used by the _Rece
 Take a look at this chart below:
 
 
-![Top](image.png)
+![Top](image_.png)
 
 This project has two sections, first, *UVic MUSE* that connects to MUSE 
 over Bluetooth and streams its data over UDP and LSL.
