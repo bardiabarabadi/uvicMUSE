@@ -317,6 +317,7 @@ class UVicMuse(FloatLayout):
 
         self.backend.disconnect_btn_callback()
         self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id]['name'] + "                                                                 ")
+        self.search(event)
 
     #Function for Searching for nearby Muses 
     def search(self, event):
