@@ -55,9 +55,10 @@ class UVicMuse(FloatLayout):
         # Initiate Labels
         self.status_label = Label(text="Press Search to Look For Nearby Muse                                                ", color=(.05, .5, .95, 1), font_size=14)
         self.canvas.add(Rectangle(size=(570, 250), pos=(25, 225), color=(1, 1, 1, 1)))
-        self.sensors_title = Label(text = "Sensors", color = (.05, .5, .95, 1), font_size = 16)
-        self.LSL_title = Label(text = "LSL", color = (.05, .5, .95, 1), font_size = 16)
-        self.filter_title = Label(text = "Filters", color = (.05, .5, .95, 1), font_size = 16)
+        self.sensors_title = Label(text = "Sensors", color = (.3, .3, 1, 1), font_size = 16)
+        self.LSL_title = Label(text = "Lab Streaming", color = (.3, .3, 1, 1), font_size = 16)
+        self.LSL2_title = Label(text = "Layer", color = (.3, .3, 1, 1), font_size = 16)
+        self.filter_title = Label(text = "Filters", color = (.3, .3, 1, 1), font_size = 16)
 
         self.search_button = Button(text="Search", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .65},
                                     background_color=(.05, .5, .95, 1),on_press= self.update_status_search, on_release=self.search)
@@ -104,9 +105,9 @@ class UVicMuse(FloatLayout):
         self.notch_checkbox = CheckBox(active = True, size_hint_y = 0.02, size_hint_x = 0.02)
 
         # Initiate textbox's to enter text
-        self.lowpass_text = TextInput(font_size=13, pos_hint={"x": 0.32, "y": 0.055}, size_hint=(0.07, 0.043),
+        self.lowpass_text = TextInput(font_size=13, pos_hint={"x": 0.85, "y": 0.225}, size_hint=(0.07, 0.043),
                                       multiline=False, text='30', write_tab=False)
-        self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.61, "y": 0.055}, size_hint=(0.07, 0.043),
+        self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.85, "y": 0.092}, size_hint=(0.07, 0.043),
                                        multiline=False, text='0.1', write_tab=False)
 
         
@@ -119,7 +120,6 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.status_label)
         self.add_widget(self.lowpass_text)
         self.add_widget(self.highpass_text)
-        self.add_widget(self.LSL_label)
         self.add_widget(self.EEG_label)
         self.add_widget(self.PPG_label)
         self.add_widget(self.ACC_label)
@@ -143,31 +143,38 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.sensors_title)
         self.add_widget(self.filter_title)
         self.add_widget(self.LSL_title)
+        self.add_widget(self.LSL2_title)
 
         # Adjust positions of widgets that have been added to the frame
         self.img.pos = (0, 220)
         self.status_label.pos = (-155, -90)
-        self.LSL_label.pos = (-262, -157)
-        self.EEG_label.pos = (-170, -157)
-        self.PPG_label.pos = (-56, -153)
-        self.ACC_label.pos = (52, -153)
-        self.GYRO_label.pos = (160, -153)
-        self.notch_label.pos = (267, -153)
-        self.LSL_checkbox.pos = (104, 122)
-        self.EEG_checkbox.pos = (207, 122)
-        self.PPG_checkbox.pos = (311, 122)
-        self.ACC_checkbox.pos = (419, 122)
-        self.GYRO_checkbox.pos = (527, 122)
-        self.lowpass_label.pos = (-184, -230)
-        self.highpass_label.pos = (36, -230)
-        self.lowpass_checkbox.pos = (260, 63)
-        self.highpass_checkbox.pos = (476, 63)
-        self.lowpass_cutoff.pos = (-160, -255)
-        self.highpass_cutoff.pos = (57, -255)
-        self.notch_checkbox.pos = (635, 122)
-        self.sensors_title.pos = (-200, -140)
-        self.LSL_title = (-10, -140)
-        self.filter_title.pos = (180, -140)
+
+
+        self.EEG_label.pos =  (-263, -157)              
+        self.PPG_label.pos =  (-160, -157)
+        self.ACC_label.pos = (-263, -200)
+        self.GYRO_label.pos = (-160, -200)
+
+        self.notch_label.pos = (170, -190)
+
+        self.LSL_checkbox.pos =  (355, 100)
+        self.EEG_checkbox.pos =  (104, 122)         
+        self.PPG_checkbox.pos =  (210, 122)
+        self.ACC_checkbox.pos = (104, 78)
+        self.GYRO_checkbox.pos = (210, 78)
+
+        self.lowpass_label.pos = (140, -150)
+        self.highpass_label.pos = (140, -230)
+        self.lowpass_checkbox.pos = (570, 142)
+        self.highpass_checkbox.pos = (570, 63)
+        self.lowpass_cutoff.pos = (235, -150)
+        self.highpass_cutoff.pos = (235, -230)
+        self.notch_checkbox.pos = (570, 100)
+
+        self.sensors_title.pos = (-210, -125)
+        self.LSL_title.pos = (-10, -125)
+        self.LSL2_title.pos = (-12, -142)
+        self.filter_title.pos = (200, -125)
 
         #initial state
         self.PPG_checkbox.disabled = True 
