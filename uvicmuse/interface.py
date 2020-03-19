@@ -55,6 +55,10 @@ class UVicMuse(FloatLayout):
         # Initiate Labels
         self.status_label = Label(text="Press Search to Look For Nearby Muse                                                ", color=(.05, .5, .95, 1), font_size=14)
         self.canvas.add(Rectangle(size=(570, 250), pos=(25, 225), color=(1, 1, 1, 1)))
+        self.sensors_title = Label(text = "Sensors", color = (.05, .5, .95, 1), font_size = 16)
+        self.LSL_title = Label(text = "LSL", color = (.05, .5, .95, 1), font_size = 16)
+        self.filter_title = Label(text = "Filters", color = (.05, .5, .95, 1), font_size = 16)
+
         self.search_button = Button(text="Search", size_hint=(.15, .08), pos_hint={'x': 0.82, 'y': .65},
                                     background_color=(.05, .5, .95, 1),on_press= self.update_status_search, on_release=self.search)
 
@@ -136,18 +140,21 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.connect_button)
         self.add_widget(self.disconnect_button)
         self.add_widget(self.list_box)
+        self.add_widget(self.sensors_title)
+        self.add_widget(self.filter_title)
+        self.add_widget(self.LSL_title)
 
         # Adjust positions of widgets that have been added to the frame
         self.img.pos = (0, 220)
         self.status_label.pos = (-155, -90)
-        self.LSL_label.pos = (-272, -153)
-        self.EEG_label.pos = (-164, -153)
+        self.LSL_label.pos = (-262, -157)
+        self.EEG_label.pos = (-170, -157)
         self.PPG_label.pos = (-56, -153)
         self.ACC_label.pos = (52, -153)
         self.GYRO_label.pos = (160, -153)
         self.notch_label.pos = (267, -153)
-        self.LSL_checkbox.pos = (95, 122)
-        self.EEG_checkbox.pos = (203, 122)
+        self.LSL_checkbox.pos = (104, 122)
+        self.EEG_checkbox.pos = (207, 122)
         self.PPG_checkbox.pos = (311, 122)
         self.ACC_checkbox.pos = (419, 122)
         self.GYRO_checkbox.pos = (527, 122)
@@ -158,6 +165,9 @@ class UVicMuse(FloatLayout):
         self.lowpass_cutoff.pos = (-160, -255)
         self.highpass_cutoff.pos = (57, -255)
         self.notch_checkbox.pos = (635, 122)
+        self.sensors_title.pos = (-200, -140)
+        self.LSL_title = (-10, -140)
+        self.filter_title.pos = (180, -140)
 
         #initial state
         self.PPG_checkbox.disabled = True 
@@ -208,29 +218,23 @@ class UVicMuse(FloatLayout):
         self.button_state(True, True, True, True, False, True, True, True,
             True, True, True, True, True, True, True, True)
 
-        if not (self.did_connect):
-            self.status_label.text = "Not connnected to Muse, please connect"
+        self.backend.udp_stream_btn_callback(
+            use_low_pass=self.lowpass_checkbox.active,
+            use_high_pass=self.highpass_checkbox.active,
+            low_pass_cutoff=(float)(self.get_lowpass_cutoff()),
+            high_pass_cutoff=(float)(self.get_highpass_cutoff()),
+            use_notch=self.get_notch_checkbox,)
+        if self.backend.is_udp_streaming:
+            self.status_label.text = "Streaming Data                                                                                                  "
         else:
-            self.backend.udp_stream_btn_callback(
-                use_low_pass=self.lowpass_checkbox.active,
-                use_high_pass=self.highpass_checkbox.active,
-                low_pass_cutoff=(float)(self.get_lowpass_cutoff()),
-                high_pass_cutoff=(float)(self.get_highpass_cutoff()),
-                use_notch=self.get_notch_checkbox,)
-            if self.backend.is_udp_streaming:
-                self.status_label.text = "Streaming Data"
-            else:
-                self.status_label.text = "Unsuccessful streaming attempt"
+            self.status_label.text = "Unsuccessful streaming attempt"
 
     #Function for stopping Data Stream
     def stop_stream(self, event):
         self.button_state(True, False, True, False, True, False, False, True, True, True, 
-            False, False, False, False, False, True)
-
-        if not (self.did_connect):
-            self.status_label.text = "Not connnected to  a Muse, please connect"        
+            False, False, False, False, False, True)       
         self.backend.udp_stop_btn_callback()
-        self.status_label.text = "Data stream has been stopped"
+        self.status_label.text = "Data stream has been stopped                                                                  "
 
     def get_lowpass_cutoff(self):
         return float(self.lowpass_text.text)
@@ -279,19 +283,17 @@ class UVicMuse(FloatLayout):
                 False, False, False, False, False, True)
 
             self.current_muse_id = self.list_box.values.index(self.list_box.text)
-            if (self.backend.is_connected()):
-                self.status_label.text = "Already connected to a Muse"
-            else:
-                self.backend.connect_btn_callback(self.current_muse_id, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
+
+            self.backend.connect_btn_callback(self.current_muse_id, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
                                                   self.get_ACC_checkbox(), self.get_GYRO_checkbox())
-                self.did_connect = self.backend.is_connected()
-                if (self.did_connect):
-                    self.status_label.text = "                    Successfully connected to " + str(self.muses[0]['name'] + ", select filters to stream data with")
-                    self.connected_address = self.muses[0]['address']
-                else:
-                    self.status_label.text = "Unsuccessful connection attempt, make sure Muse is turned on                                     "
+            self.did_connect = self.backend.is_connected()
+            if(self.did_connect):
+                self.status_label.text = "                    Successfully connected to " + str(self.muses[0]['name'] + ", select filters to stream data with")
+                self.connected_address = self.muses[0]['address']
+            else:
+                self.status_label.text = "Unsuccessful connection attempt, make sure Muse is turned on                                     "
         except:
-            self.status_label.text = "                        Please select a Muse from the dropdown menu before connecting"
+            self.status_label.text = "                      Please select a Muse from the dropdown menu before connecting                "
             self.button_state( False, True, False, 
                    True, True, True, True, False, 
                     False, False,True, True, 
@@ -309,24 +311,27 @@ class UVicMuse(FloatLayout):
 
     #Function for Searching for nearby Muses 
     def search(self, event):
-        self.button_state( False, True, False, 
+        try:
+            self.button_state( False, True, False, 
                    True, True, True, True, False, 
                     False, False,True, True, 
                     True, True, True, False)
 
-        self.muses, succeed = self.backend.refresh_btn_callback()
-        self.vals = []
-        for i in range(len(self.muses)):
-            self.vals.append(self.muses[i]['name'] + " Mac Address " + str(self.muses[i]['address']))
+            self.muses, succeed = self.backend.refresh_btn_callback()
+            self.vals = []
+            for i in range(len(self.muses)):
+                self.vals.append(self.muses[i]['name'] + " Mac Address " + str(self.muses[i]['address']))
 
-        if(len(self.muses)) == 0:
-            self.status_label.text = "No nearby devices were found, please try again                               "
-        if(len(self.muses)) == 1:
-            self.status_label.text = "1 device was found, please choose sensors to connect with       "
-        if(len(self.muses)) > 1:
-            self.status_label.text = str(len(self.muses)) + "Devices were found, please choose sensors to connect with       "
+            if(len(self.muses)) == 0:
+                self.status_label.text = "No nearby devices were found, please try again                               "
+            if(len(self.muses)) == 1:
+                self.status_label.text = "1 device was found, please choose sensors to connect with       "
+            if(len(self.muses)) > 1:
+                self.status_label.text = str(len(self.muses)) + "Devices were found, please choose sensors to connect with       "
 
-        self.list_box.values = self.vals
+            self.list_box.values = self.vals
+        except:
+            self.status_label.text = "No BLE Module Found                                                                                 "
              
 class Muse(App):
     def build(self):
