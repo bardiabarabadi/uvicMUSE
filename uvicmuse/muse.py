@@ -50,12 +50,12 @@ class Muse():
         """Connect to the device"""
         try:
             if self.backend == 'bluemuse':
-                print('Starting BlueMuse.')
+                # print('Starting BlueMuse.')
                 subprocess.call('start bluemuse:', shell=True)
 
             else:
-                print('Connecting to %s: %s...' %
-                      (self.name if self.name else 'Muse', self.address))
+                # print('Connecting to %s: %s...' %
+                #       (self.name if self.name else 'Muse', self.address))
                 if self.backend == 'gatt':
                     self.interface = self.interface or 'hci0'
                     self.adapter = pygatt.GATTToolBackend(self.interface)
@@ -120,7 +120,7 @@ class Muse():
                 return True
 
             else:
-                print('Connection to', self.address, 'failed')
+                # print('Connection to', self.address, 'failed')
                 return False
 
     def _write_cmd(self, cmd):

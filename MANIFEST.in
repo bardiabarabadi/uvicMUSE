@@ -1,5 +1,5 @@
-include docs/logo.png
+include docs/Header.png
 include docs/*.png
 include docs/*.md
-include uvicmuse/docs/logo.png
+include uvicmuse/docs/Header.png
 recursive-include docs

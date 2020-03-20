@@ -14,7 +14,7 @@ def copy_docs():
     if not os.path.exists(docs_dir):
         os.makedirs(docs_dir)
 
-    copyfile("docs/logo.png", docs_dir + "/logo.png")
+    copyfile("docs/Header.png", docs_dir + "/Header.png")
     copyfile("docs/README.md", docs_dir + "/README.md")
 
 copy_docs()
@@ -22,16 +22,16 @@ long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="1.0.10",
+    version="1.1.4",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
     author="Bardia Barabadi",
-    author_email="b.barabadi@gmail.com",
+    author_email="bardiabarabadi@uvic.ca",
     license="MIT",
     entry_points={"console_scripts": ["uvicmuse=uvicmuse.__main__:main"]},
     packages=['uvicmuse'],
-    package_data={'uvicmuse': ['docs/logo.png']},
+    package_data={'uvicmuse': ['docs/Header.png']},
     include_package_data=True,
     zip_safe=False,
     long_description=long_description,

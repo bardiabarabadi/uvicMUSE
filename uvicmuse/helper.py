@@ -37,7 +37,7 @@ def list_muses(backend='bgapi', interface=None):
         adapter = pygatt.BGAPIBackend(serial_port=interface)
 
     adapter.start()
-    print('Searching for Muses, this may take up to 10 seconds...                                 ')
+    # print('Searching for Muses, this may take up to 10 seconds...                                 ')
     devices = adapter.scan(timeout=10.5)
     adapter.stop()
     muses = []
@@ -48,10 +48,12 @@ def list_muses(backend='bgapi', interface=None):
 
     if muses:
         for muse in muses:
-            print('Found device %s, MAC Address %s' %
-                  (muse['name'], muse['address']))
+            pass
+            # print('Found device %s, MAC Address %s' %
+            #       (muse['name'], muse['address']))
     else:
-        print('No Muses found.')
+        pass
+        # print('No Muses found.')
 
     return muses
 

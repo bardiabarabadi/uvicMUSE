@@ -79,7 +79,7 @@ and typing uvicmuse**
 
 #### GUI: 
 
-![Top](uvicmuse.png)
+![Top](uvicmuse_.png)
 
 #### Streaming Procedure:
 Follow steps shown below to stream the MUSE sensory data. Remember to correctly specify the **Required Entries** variables
@@ -131,11 +131,9 @@ We suggest using multiple instances of `get_xxx_chunk()`, but you can change the
 
 ```
 @misc{UVicMUSE,
-  author       = {Bardia Barabadi},
+  author       = {Bardia Barabadi, Jamieson Fregeau},
   title        = {uvic-muse},
   month        = March,
   year         = 2020,
-  doi          = {},
-  url          = {}
 }
 ```

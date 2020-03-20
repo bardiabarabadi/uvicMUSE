@@ -1,9 +1,11 @@
 import os
+os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.floatlayout import FloatLayout
 from kivy.config import Config
+from kivy.uix.popup import Popup
 import kivy.utils
 
 Config.set('graphics', 'width', '750')
@@ -47,7 +49,7 @@ class UVicMuse(FloatLayout):
 
         # Create UVic Muse Logo
         DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
-        self.img = Image(source=os.path.join(DATA_PATH, 'logo.png'))
+        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'))
 
         # Initiate Labels
         self.status_label = Label(
@@ -64,6 +66,10 @@ class UVicMuse(FloatLayout):
         self.LSL_title = Label(text="Lab Streaming", color=self.txt_color, font_size=18, bold=True)
         self.LSL2_title = Label(text="Layer (LSL)", color=self.txt_color, font_size=18, bold=True)
         self.filter_title = Label(text="Filters", color=self.txt_color, font_size=18, bold=True)
+
+        self.about_button = Button(text="About Us", size_hint=(.15, .0060), pos_hint={'x': 0.84, 'y': .022},
+                                   background_color=(4 / 256, 14 / 256, 71 / 256, 1),
+                                   on_release=self.about)
 
         self.reset_button = Button(text="Reset Kernel", size_hint=(.15, .0060), pos_hint={'x': 0.01, 'y': .022},
                                    background_color=(158 / 256, 56 / 256, 30 / 256, 1),
@@ -115,6 +121,7 @@ class UVicMuse(FloatLayout):
 
         # add widgets that have been initiated to frame
         self.add_widget(self.img)
+        self.add_widget(self.about_button)
         self.add_widget(self.reset_button)
         self.add_widget(self.search_button)
         self.add_widget(self.connect_button)
@@ -146,7 +153,7 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.LSL2_title)
 
         # Adjust positions of widgets that have been added to the frame
-        self.img.pos = (0, 220)
+        self.img.pos = (0, 225)
         self.status_label.pos = (-155, 120)
 
         self.EEG_label.pos = (-263, -150)
@@ -221,6 +228,14 @@ class UVicMuse(FloatLayout):
         self.highpass_text.disabled = highpass_cut_state
         self.list_box.disabled = list_box_state
 
+    def about(self, event):
+        popup = Popup(title="About UVicMUSE", content=Label(text='Developed and Designed by \nBardia'
+                                                                 'Barabadi & Jamieson Fregeau\n\nKrigolson Lab '
+                                                                  '(Theoretical and \nApplied Neuroscience Laboratory)\n\n'
+                                                                 'University of Victoria, Canada, 2020.'
+                                                            ), size_hint=(None, None), size=(300, 200))
+        popup.open()
+
     def reset(self, event):
         if self.did_connect:
             self.disconnect(event)
@@ -238,7 +253,15 @@ class UVicMuse(FloatLayout):
 
     # Function for starting Data Stream
     def stream(self, event):
-        self.button_state(True, True, True, True, False, True, True, True,
+
+        if self.backend.is_udp_streaming:
+            self.backend.udp_stop_btn_callback()
+            self.status_label.text = "Data stream has been stopped                                           " \
+                                     "                       "
+            self.stream_button.text = "Start Streaming"
+            return
+
+        self.button_state(True, True, True, False, False, True, True, True,
                           True, True, True, True, True, True, True, True)
 
         self.backend.udp_stream_btn_callback(
@@ -250,6 +273,7 @@ class UVicMuse(FloatLayout):
         if self.backend.is_udp_streaming:
             self.status_label.text = "Streaming Data                                                      " \
                                      "                                            "
+            self.stream_button.text = "Stop Streaming"
         else:
             self.status_label.text = "Unsuccessful streaming attempt"
 
@@ -374,7 +398,7 @@ class UVicMuse(FloatLayout):
                 self.status_label.text = "1 device was found, please choose sensors to connect with       "
             if (len(self.muses)) > 1:
                 self.status_label.text = str(
-                    len(self.muses)) + "Devices were found, please choose sensors to connect with       "
+                    len(self.muses)) + " Devices were found, please choose sensors to connect with       "
 
             self.list_box.values = self.vals
 
