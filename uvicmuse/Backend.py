@@ -4,7 +4,7 @@ from functools import partial
 from uvicmuse.muse import Muse
 import socket
 import struct
-import pygatt
+import pygatt, os
 from pylsl import StreamInfo, StreamOutlet
 import platform
 from scipy import signal
@@ -43,9 +43,13 @@ class Backend:
         self.filter_b = None
         self.filter_z = None
 
-        self.interface = [tuple(p) for p in list(serial.tools.list_ports.comports())][0][
-            0] if platform.system() == 'Linux' else None
-        print (self.interface)
+        if platform.system() != 'Linux':
+            self.interface = None
+        else:
+            if os.path.exists("/dev/ttyACM0"):
+                self.interface = "/dev/ttyACM0"
+            else:
+                self.interface = "/dev/ttyACM1"
 
     # + MUSE interface functions
     def refresh_btn_callback(self):
