@@ -8,6 +8,7 @@ import pygatt
 from pylsl import StreamInfo, StreamOutlet
 import platform
 from scipy import signal
+import serial
 
 
 class Backend:
@@ -42,15 +43,17 @@ class Backend:
         self.filter_b = None
         self.filter_z = None
 
-        self.interface = "/dev/ttyACM0" if platform.system() == 'Linux' else None
+        self.interface = [tuple(p) for p in list(serial.tools.list_ports.comports())][0][
+            0] if platform.system() == 'Linux' else None
+        print (self.interface)
 
     # + MUSE interface functions
     def refresh_btn_callback(self):
         succeed = False
-        try:
-            self.muses = list_muses()
-        except pygatt.exceptions.BLEError:
-            return ["No BLE Module Found."], succeed
+        # try:
+        self.muses = list_muses(interface=self.interface)
+        # except pygatt.exceptions.BLEError:
+        #     return ["No BLE Module Found."], succeed
 
         succeed = True
 

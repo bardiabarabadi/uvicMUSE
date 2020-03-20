@@ -22,7 +22,7 @@ long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="1.1.4",
+    version="1.1.5",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
@@ -47,7 +47,8 @@ setup(
                          "pillow",
                          "kivy",
                          "docutils",
-                         "pygments"
+                         "pygments",
+                         "serial"
                      ] +
                      (["pylsl==1.10.5"] if os.sys.platform.startswith(
                          "linux") else ["pylsl", "kivy.deps.glew", "kivy.deps.sdl2", "kivy.deps.gstreamer",
