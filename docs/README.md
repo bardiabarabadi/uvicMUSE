@@ -127,6 +127,14 @@ We suggest using multiple instances of `get_xxx_chunk()`, but you can change the
     
     mu.set_udp_buffer_size(2048) % 2kB buffer
 
+## Issues
+
+On MacOSx: Application crashes after running:
+
+    pip uninstall serial pyserial
+    conda uninstall serial pyserial
+    pip install pyserial esptool
+
 ## Citing UVicMUSE
 
 ```
