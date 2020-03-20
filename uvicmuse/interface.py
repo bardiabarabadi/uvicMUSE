@@ -265,6 +265,8 @@ class UVicMuse(FloatLayout):
             self.lowpass_checkbox.disabled = False
             self.highpass_checkbox.disabled = False
             self.notch_checkbox.disabled = False
+            self.highpass_text.disabled = False
+            self.lowpass_text.disabled = False
 
             return
 
