@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 from shutil import copyfile
-import os
+import os, platform
 
 
 def get_long_description():
@@ -8,6 +8,7 @@ def get_long_description():
     with open(os.path.join(this_directory, 'docs/README.md')) as f:
         long_description = f.read()
         return long_description
+
 
 def copy_docs():
     docs_dir = "uvicmuse/docs"
@@ -17,12 +18,13 @@ def copy_docs():
     copyfile("docs/Header.png", docs_dir + "/Header.png")
     copyfile("docs/README.md", docs_dir + "/README.md")
 
+
 copy_docs()
 long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="1.1.5",
+    version="1.1.6",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
@@ -37,23 +39,25 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     install_requires=[
-                         "bitstring",
-                         "pygatt",
-                         "pandas",
-                         "scikit-learn",
-                         "numpy",
-                         "seaborn",
-                         "pexpect",
-                         "pillow",
-                         "kivy",
-                         "docutils",
-                         "pygments",
-                         "serial"
-                     ] +
-                     (["pylsl==1.10.5"] if os.sys.platform.startswith(
-                         "linux") else ["pylsl", "kivy.deps.glew", "kivy.deps.sdl2", "kivy.deps.gstreamer",
-                                        "pypiwin32"])
-
+        "bitstring",
+        "pygatt",
+        "pandas",
+        "scikit-learn",
+        "numpy",
+        "seaborn",
+        "pexpect",
+        "pillow",
+        "kivy",
+        "docutils",
+        "pygments",
+        "serial",
+        'pypiwin32 ; platform_system=="Windows"',
+        'pylsl ; platform_system=="Windows"',
+        'kivy.deps.glew ; platform_system=="Windows"',
+        'kivy.deps.sdl2 ; platform_system=="Windows"',
+        'kivy.deps.gstreamer ; platform_system=="Windows"',
+        'pylsl==1.10.5 ; platform_system=="Linux"'
+    ]
     ,
     classifiers=[
         # How mature is this project?  Common values are
