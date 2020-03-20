@@ -5,7 +5,7 @@ figure
 
 dialogBox = uicontrol('Style', 'PushButton', 'String', 'Break','Callback', 'delete(gcbf)');
 
-PORT = 5050;
+PORT = 1963;
 EEG_OFFSET = 0;
 PPG_OFFSET = 1;
 ACC_OFFSET = 2;

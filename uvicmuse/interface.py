@@ -261,6 +261,11 @@ class UVicMuse(FloatLayout):
             self.status_label.text = "Data stream has been stopped                                           " \
                                      "                       "
             self.stream_button.text = "Start Streaming"
+
+            self.lowpass_checkbox.disabled = False
+            self.highpass_checkbox.disabled = False
+            self.notch_checkbox.disabled = False
+
             return
 
         self.button_state(True, True, True, False, False, True, True, True,

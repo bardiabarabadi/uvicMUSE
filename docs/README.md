@@ -13,7 +13,7 @@ We highly recommend installing on a virtual environment (VE). You can build and 
 
 
 
-**Compatible with Python 2.7 and Python 3.x**
+**Compatible with Python 3.x**
 
 **Compatible with MUSE _MU-02_ and _MU-03_**
 
