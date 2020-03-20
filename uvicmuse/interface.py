@@ -1,4 +1,5 @@
 import os
+
 os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.button import Button
@@ -202,7 +203,8 @@ class UVicMuse(FloatLayout):
         if self.did_connect:
             pass
         else:
-            self.status_label.text = "Connecting to the selected MUSE..."
+            self.status_label.text = "Connecting to the selected MUSE...                                 " \
+                                     "                      "
 
     # As Search takes 10 seconds, update the status before the process begins
     def update_status_search(self, event):
@@ -231,7 +233,7 @@ class UVicMuse(FloatLayout):
     def about(self, event):
         popup = Popup(title="About UVicMUSE", content=Label(text='Developed and Designed by \nBardia'
                                                                  'Barabadi & Jamieson Fregeau\n\nKrigolson Lab '
-                                                                  '(Theoretical and \nApplied Neuroscience Laboratory)\n\n'
+                                                                 '(Theoretical and \nApplied Neuroscience Laboratory)\n\n'
                                                                  'University of Victoria, Canada, 2020.'
                                                             ), size_hint=(None, None), size=(300, 200))
         popup.open()
