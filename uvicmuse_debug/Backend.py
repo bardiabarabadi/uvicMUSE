@@ -1,7 +1,7 @@
-from uvicmuse.constants import *
-from uvicmuse.helper import *
+from uvicmuse_debug.constants import *
+from uvicmuse_debug.helper import *
 from functools import partial
-from uvicmuse.muse import Muse
+from uvicmuse_debug.muse import Muse
 import socket
 import struct
 import pygatt, os
@@ -55,6 +55,7 @@ class Backend:
     def refresh_btn_callback(self):
         succeed = False
         # try:
+        print ('Started Refresh')
         self.muses = list_muses(interface=self.interface)
         # except pygatt.exceptions.BLEError:
         #     return ["No BLE Module Found."], succeed

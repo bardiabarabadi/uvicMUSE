@@ -3,8 +3,8 @@ import pygatt
 import numpy as np
 from time import time, sleep
 import subprocess
-import uvicmuse.helper as helper
-from uvicmuse.constants import *
+import uvicmuse_debug.helper as helper
+from uvicmuse_debug.constants import *
 
 
 class Muse():

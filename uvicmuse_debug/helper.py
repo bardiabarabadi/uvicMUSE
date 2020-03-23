@@ -1,5 +1,10 @@
 import platform
 import pygatt
+import logging
+import serial.tools.list_ports
+
+logging.basicConfig(filename='example.log', filemode='w', level=logging.DEBUG)
+logging.getLogger('pygatt').setLevel(logging.DEBUG)
 
 
 def resolve_backend(backend):
@@ -29,15 +34,27 @@ def find_muse(name=None):
 
 def list_muses(backend='bgapi', interface=None):
     backend = resolve_backend(backend)
-
+    print('Interface is seleceted as ' + str(interface))
     if backend == 'gatt':
         interface = interface or 'hci0'
         adapter = pygatt.GATTToolBackend(interface)
     else:
+
+        if platform.system() == 'Windows':
+            port_list = serial.tools.list_ports.comports()
+            if len(port_list) == 0:
+                print('No dongle found')
+                return []
+
+            for com in port_list:
+                print('found ' + com.description + ', manufactured: ' + com.manufacturer)
+                if com.manufacturer == 'Bluegiga':
+                    interface = com.device
+
         adapter = pygatt.BGAPIBackend(serial_port=interface)
 
     adapter.start()
-    # print('Searching for Muses, this may take up to 10 seconds...                                 ')
+    print('Searching for Muses, this may take up to 10 seconds...                                 ')
     devices = adapter.scan(timeout=10.5)
     adapter.stop()
     muses = []

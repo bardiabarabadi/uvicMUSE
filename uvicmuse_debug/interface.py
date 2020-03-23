@@ -1,6 +1,6 @@
 import os
 
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
+# os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -18,7 +18,7 @@ from kivy.graphics import *
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
-from uvicmuse.muse import Muse
+from uvicmuse_debug.muse import Muse
 from .Backend import Backend
 import pkg_resources
 
@@ -49,7 +49,7 @@ class UVicMuse(FloatLayout):
         self.current_muse_id = 0
 
         # Create UVic Muse Logo
-        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
+        DATA_PATH = pkg_resources.resource_filename('uvicmuse_debug', 'docs/')
         self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'))
 
         # Initiate Labels
@@ -389,14 +389,16 @@ class UVicMuse(FloatLayout):
         if self.did_connect:
             self.disconnect(event)
 
-        try:
-            self.button_state(False, True, False,
-                              True, True, True, False, False,
-                              False, False, True, True,
-                              True, True, True, False)
 
-            self.connect_button.disabled = False
-            self.muses, succeed = self.backend.refresh_btn_callback()
+        self.button_state(False, True, False,
+                          True, True, True, False, False,
+                          False, False, True, True,
+                          True, True, True, False)
+
+        self.connect_button.disabled = False
+        self.muses, succeed = self.backend.refresh_btn_callback()
+
+        if len(self.muses) is not 0:
             self.vals = []
             for i in range(len(self.muses)):
                 self.vals.append(self.muses[i]['name'] + " Mac Address " + str(self.muses[i]['address']))
@@ -412,7 +414,7 @@ class UVicMuse(FloatLayout):
             self.list_box.values = self.vals
 
             self.list_box.text = str(len(self.muses)) + " Devices were found, Press to choose"
-        except:
+        else:
             self.status_label.text = "No BLE Module Found                                        " \
                                      "                                         "
 

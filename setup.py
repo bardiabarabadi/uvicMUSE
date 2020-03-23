@@ -11,7 +11,7 @@ def get_long_description():
 
 
 def copy_docs():
-    docs_dir = "uvicmuse/docs"
+    docs_dir = "uvicmuse_debug/docs"
     if not os.path.exists(docs_dir):
         os.makedirs(docs_dir)
 
@@ -23,17 +23,17 @@ copy_docs()
 long_description = get_long_description()
 
 setup(
-    name="uvicmuse",
-    version="2.0.0",
+    name="uvicmuse_debug",
+    version="1.0.1",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
     author="Bardia Barabadi",
     author_email="bardiabarabadi@uvic.ca",
     license="MIT",
-    entry_points={"console_scripts": ["uvicmuse=uvicmuse.__main__:main"]},
-    packages=['uvicmuse'],
-    package_data={'uvicmuse': ['docs/Header.png']},
+    entry_points={"console_scripts": ["uvicmuse_debug=uvicmuse_debug.__main__:main"]},
+    packages=['uvicmuse_debug'],
+    package_data={'uvicmuse_debug': ['docs/Header.png']},
     include_package_data=True,
     zip_safe=False,
     long_description=long_description,
