@@ -1,4 +1,5 @@
 include docs/Header.png
+include docs/background.png
 include docs/*.png
 include docs/*.md
 include uvicmuse/docs/Header.png

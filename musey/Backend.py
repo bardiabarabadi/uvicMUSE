@@ -1,7 +1,7 @@
-from uvicmuse.constants import *
-from uvicmuse.helper import *
+from musey.constants import *
+from musey.helper import *
 from functools import partial
-from uvicmuse.muse import Muse
+from musey.muse import Muse
 import socket
 import struct
 import pygatt, os

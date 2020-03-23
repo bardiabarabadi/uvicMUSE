@@ -18,7 +18,7 @@ from kivy.graphics import *
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
-from uvicmuse.muse import Muse
+from musey.muse import Muse
 from .Backend import Backend
 import pkg_resources
 
@@ -34,8 +34,8 @@ class UVicMuse(FloatLayout):
         super(UVicMuse, self).__init__(**kwargs)
 
         self.press_search_txt = "Search for a list of Available Muses"
-        self.btn_color = (108 / 256, 91 / 256, 123 / 256, 1)
-        self.txt_color = kivy.utils.get_color_from_hex("#3caea3")
+        self.btn_color = (23 / 256, 54 / 256, 121 / 256, 1)
+        self.txt_color = kivy.utils.get_color_from_hex("#7FC5DC")
         # self.txt_color = kivy.utils.get_color_from_hex("#F8B195")
         self.muses = []
         self.sock = None
@@ -49,32 +49,37 @@ class UVicMuse(FloatLayout):
         self.current_muse_id = 0
 
         # Create UVic Muse Logo
-        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
-        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'))
+        DATA_PATH = pkg_resources.resource_filename('musey', 'docs/')
+        self.img_bg = Image(source=os.path.join(DATA_PATH, 'background.png'))
+
+        self.add_widget(self.img_bg)
+
+        # self.img_header = Image(source=os.path.join(DATA_PATH, 'Header.png'))
 
         # Initiate Labels
         self.status_label = Label(
             text="Press Search to Look For Nearby Muse                                                ",
             color=self.txt_color, font_size=14)
-        self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
-        self.canvas.add(Rectangle(size=(750, 150), pos=(0, 600 - 150)))
 
-        # Footer
-        self.canvas.add(Color(14 / 256, 35 / 256, 102 / 256))
-        self.canvas.add(Rectangle(size=(750, 32), pos=(0, 0 + 0)))
+        # self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
+        # self.canvas.add(Rectangle(size=(750, 150), pos=(0, 600 - 150)))
+
+        # # Footer
+        # self.canvas.add(Color(11 / 256, 30 / 256, 56 / 256, 0.5))
+        # self.canvas.add(Rectangle(size=(750, 30), pos=(0, 0 + 0)))
 
         self.sensors_title = Label(text="Sensors", color=self.txt_color, font_size=18, bold=True)
         self.LSL_title = Label(text="Lab Streaming", color=self.txt_color, font_size=18, bold=True)
         self.LSL2_title = Label(text="Layer (LSL)", color=self.txt_color, font_size=18, bold=True)
         self.filter_title = Label(text="Filters", color=self.txt_color, font_size=18, bold=True)
 
-        self.about_button = Button(text="About Us", size_hint=(.15, .0060), pos_hint={'x': 0.84, 'y': .022},
-                                   background_color=(4 / 256, 14 / 256, 71 / 256, 1),
-                                   on_release=self.about)
-
-        self.reset_button = Button(text="Reset Kernel", size_hint=(.15, .0060), pos_hint={'x': 0.01, 'y': .022},
-                                   background_color=(158 / 256, 56 / 256, 30 / 256, 1),
-                                   on_release=self.reset)
+        # self.about_button = Button(text="About Us", size_hint=(.15, .00020), pos_hint={'x': 0.84, 'y': .0235},
+        #                            background_color=self.btn_color, font_size=12,
+        #                            on_release=self.about)
+        #
+        # self.reset_button = Button(text="Reset Kernel", size_hint=(.15, .000040), pos_hint={'x': 0.01, 'y': .0235},
+        #                            background_color=(kivy.utils.get_color_from_hex("#DB901C")), font_size=12,
+        #                            on_release=self.reset)
 
         self.search_button = Button(text="Search", size_hint=(.15, .07), pos_hint={'x': 0.82, 'y': .6},
                                     background_color=self.btn_color, on_press=self.update_status_search,
@@ -121,9 +126,9 @@ class UVicMuse(FloatLayout):
                                        multiline=False, text='0.1', write_tab=False, )
 
         # add widgets that have been initiated to frame
-        self.add_widget(self.img)
-        self.add_widget(self.about_button)
-        self.add_widget(self.reset_button)
+        # self.add_widget(self.img_header)
+        # self.add_widget(self.about_button)
+        # self.add_widget(self.reset_button)
         self.add_widget(self.search_button)
         self.add_widget(self.connect_button)
         self.add_widget(self.stream_button)
@@ -154,7 +159,8 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.LSL2_title)
 
         # Adjust positions of widgets that have been added to the frame
-        self.img.pos = (0, 225)
+        # self.img_header.pos = (0, 225)
+        self.img_bg.pos = (0, 0)
         self.status_label.pos = (-155, 120)
 
         self.EEG_label.pos = (-263, -150)
