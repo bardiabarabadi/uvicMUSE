@@ -56,9 +56,17 @@ or Command Prompt (Windows) and skip the optional steps.**
     
     conda activate muse_env
     
+Install dependencies
+
+    pip install pylsl pygatt # For Windows and MacOS
+    pip install pylsl==1.10.5 pygatt # For Linux
+          
+    
 Install UVicMUSE using `pip`
 
     pip install --upgrade uvicmuse
+    
+
 
     
 #### Running UVicMUSE:
