@@ -34,7 +34,7 @@ class UVicMuse(FloatLayout):
         super(UVicMuse, self).__init__(**kwargs)
 
         self.press_search_txt = "Search for a list of Available Muses"
-        self.btn_color = (23 / 256, 54 / 256, 121 / 256, 1)
+        self.btn_color = (72 / 256, 136 / 256, 200 / 256, 1)
         self.txt_color = kivy.utils.get_color_from_hex("#7FC5DC")
         # self.txt_color = kivy.utils.get_color_from_hex("#F8B195")
         self.muses = []
@@ -424,6 +424,7 @@ class UVicMuse(FloatLayout):
 
 
 class Muse(App):
+    title = 'Musey! - MUSE EEG interface'
     def build(self):
         return UVicMuse()
 
