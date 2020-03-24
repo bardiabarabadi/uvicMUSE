@@ -11,7 +11,7 @@ import kivy.utils
 
 Config.set('graphics', 'width', '750')
 Config.set('graphics', 'height', '600')
-Config.set('graphics', 'resizable', False)
+# Config.set('graphics', 'resizable', False)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 from kivy.uix.image import Image
 from kivy.graphics import *
@@ -54,19 +54,35 @@ class UVicMuse(FloatLayout):
 
         # Initiate Labels
         self.status_label = Label(
-            text="Press Search to Look For Nearby Muse                                                ",
-            color=self.txt_color, font_size=14)
-        self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
-        self.canvas.add(Rectangle(size=(750, 150), pos=(0, 600 - 150)))
+            text="Press Search to Look For Nearby Muse",
+            color=self.txt_color, font_size='16sp', pos_hint={'x': 0.033, 'y': .2}, size_hint=(1.0, 1.0), halign="left",
+            valign="middle")
+        self.status_label.bind(size=self.status_label.setter('text_size'))
+
+        # with self.canvas:
+        #
+        #     Color(133 / 256, 169 / 256, 204 / 256)
+        #     Rectangle()
+
+
+
+
+        # self.canvas = RectWidg(size_hint=(1.0, 0.5), pos_hint={'x': 0.2, 'y':0.75})
+        # self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
 
         # Footer
-        self.canvas.add(Color(14 / 256, 35 / 256, 102 / 256))
-        self.canvas.add(Rectangle(size=(750, 32), pos=(0, 0 + 0)))
+        # self.canvas.add(Color(14 / 256, 35 / 256, 102 / 256))
+        # self.canvas.add(Rectangle(size=(750, 32), pos=(0, 0 + 0)))
 
-        self.sensors_title = Label(text="Sensors", color=self.txt_color, font_size=18, bold=True)
-        self.LSL_title = Label(text="Lab Streaming", color=self.txt_color, font_size=18, bold=True)
-        self.LSL2_title = Label(text="Layer (LSL)", color=self.txt_color, font_size=18, bold=True)
-        self.filter_title = Label(text="Filters", color=self.txt_color, font_size=18, bold=True)
+        self.sensors_title = Label(text="Sensors", color=self.txt_color, font_size='18sp', bold=True, valign='middle',
+                                   halign='center', pos_hint={'x': -0.29, 'y': -.18})
+
+        self.LSL_title = Label(text="Lab Streaming", color=self.txt_color, font_size='18sp', bold=True,
+                               pos_hint={'x': +0.0, 'y': -.18})
+        self.LSL2_title = Label(text="Layer (LSL)", color=self.txt_color, font_size='18sp', bold=True,
+                                pos_hint={'x': +0.0, 'y': -.215})
+        self.filter_title = Label(text="Filters", color=self.txt_color, font_size='18sp', bold=True,
+                                  pos_hint={'x': +0.3, 'y': -.18})
 
         self.about_button = Button(text="About Us", size_hint=(.15, .0060), pos_hint={'x': 0.84, 'y': .022},
                                    background_color=(4 / 256, 14 / 256, 71 / 256, 1),
@@ -88,16 +104,22 @@ class UVicMuse(FloatLayout):
                                     background_color=self.btn_color,
                                     on_release=self.stream)
 
-        self.LSL_label = Label(text="LSL", color=self.txt_color, font_size=14)
-        self.EEG_label = Label(text="EEG", color=self.txt_color, font_size=14)
-        self.PPG_label = Label(text="PPG", color=self.txt_color, font_size=14)
-        self.ACC_label = Label(text="ACC", color=self.txt_color, font_size=14)
-        self.GYRO_label = Label(text="GYRO", color=self.txt_color, font_size=14)
-        self.notch_label = Label(text="Notch Filter (60Hz)", color=self.txt_color, font_size=14)
-        self.lowpass_label = Label(text="Lowpass Filter", color=self.txt_color, font_size=14)
-        self.highpass_label = Label(text="Highpass Filter", color=self.txt_color, font_size=14)
-        self.lowpass_cutoff = Label(text="Cutoff", color=self.txt_color, font_size=14)
-        self.highpass_cutoff = Label(text="Cutoff", color=self.txt_color, font_size=14)
+        # self.LSL_label = Label(text="LSL", color=self.txt_color, font_size='14sp')
+        self.EEG_label = Label(text="EEG", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.2355, 'y': -.32},
+                               halign='center')
+        self.PPG_label = Label(text="PPG", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.2355, 'y': -.22},
+                               halign='center')
+        self.ACC_label = Label(text="ACC", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.3455, 'y': -.32},
+                               halign='center')
+        self.GYRO_label = Label(text="GYRO", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.3455, 'y': -.22},
+                                halign='center')
+
+        self.lowpass_label = Label(text="Lowpass", color=self.txt_color, font_size='16sp',
+                                   pos_hint={'x': 0.25, 'y': -.235}, halign='left', valign='middle')
+        self.notch_label = Label(text="Notch (60Hz)", color=self.txt_color, font_size='16sp',
+                                 pos_hint={'x': 0.25, 'y': -.30}, halign='left', valign='middle')
+        self.highpass_label = Label(text="Highpass", color=self.txt_color, font_size='16sp',
+                                    pos_hint={'x': 0.25, 'y': -.365}, halign='left', valign='middle')
 
         # initiate List with max height
         self.list_box = Spinner(text=self.press_search_txt, values='', size_hint=(0.77, 0.07),
@@ -105,23 +127,30 @@ class UVicMuse(FloatLayout):
         self.list_box.dropdown_cls.max_height = self.list_box.height * 1.6
 
         # Initiate Checkbox's
-        self.LSL_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02)
-        self.EEG_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02)
-        self.PPG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02)
-        self.ACC_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02)
-        self.GYRO_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02)
-        self.lowpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02)
-        self.highpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02)
-        self.notch_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02)
+        self.LSL_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.49, 'y': +.18})
+        self.EEG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.13})
+        self.PPG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.23})
+        self.ACC_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.144, 'y': +.13})
+        self.GYRO_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
+                                      pos_hint={'x': 0.144, 'y': +.23})
 
+        self.lowpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
+                                         pos_hint={'x': 0.82, 'y': 0.5 - .245})
+        self.notch_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02,
+                                       pos_hint={'x': 0.82, 'y': 0.5 - 0.31})
+        self.highpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
+                                          pos_hint={'x': 0.82, 'y': 0.5 - 0.375})
         # Initiate textbox's to enter text
-        self.lowpass_text = TextInput(font_size=13, pos_hint={"x": 0.795, "y": 0.225}, size_hint=(0.07, 0.043),
-                                      multiline=False, text='30', write_tab=False)
-        self.highpass_text = TextInput(font_size=13, pos_hint={"x": 0.795, "y": 0.092}, size_hint=(0.07, 0.043),
-                                       multiline=False, text='0.1', write_tab=False, )
+        self.lowpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - .255}, size_hint=(0.07, 0.05),
+                                      multiline=False, text='30', write_tab=False, halign='center',
+                                      background_color=(133 / 256, 169 / 256, 204 / 256, 1))
+        self.highpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - 0.385}, size_hint=(0.07, 0.05),
+                                       multiline=False, text='0.1', write_tab=False, halign='center',
+                                       background_color=(133 / 256, 169 / 256, 204 / 256, 1))
 
         # add widgets that have been initiated to frame
         self.add_widget(self.img)
+        # self.add_widget(self.canvas)
         self.add_widget(self.about_button)
         self.add_widget(self.reset_button)
         self.add_widget(self.search_button)
@@ -154,34 +183,35 @@ class UVicMuse(FloatLayout):
         self.add_widget(self.LSL2_title)
 
         # Adjust positions of widgets that have been added to the frame
-        self.img.pos = (0, 225)
-        self.status_label.pos = (-155, 120)
+        self.img.pos_hint = {'x': 0, 'y': 0.7}
+        self.img.size_hint = (1, 0.3)
+        # self.status_label.pos = (-155, 120)
 
-        self.EEG_label.pos = (-263, -150)
-        self.PPG_label.pos = (-160, -150)
-        self.ACC_label.pos = (-263, -200)
-        self.GYRO_label.pos = (-158, -200)
+        # self.EEG_label.pos = (-263, -150)
+        # self.PPG_label.pos = (-160, -150)
+        # self.ACC_label.pos = (-263, -200)
+        # self.GYRO_label.pos = (-158, -200)
 
-        self.LSL_checkbox.pos = (355, 110)
-        self.EEG_checkbox.pos = (104, 122)
-        self.PPG_checkbox.pos = (210, 122)
-        self.ACC_checkbox.pos = (104, 71)
-        self.GYRO_checkbox.pos = (210, 71)
+        # self.LSL_checkbox.pos = (355, 110)
+        # self.EEG_checkbox.pos = (104, 122)
+        # self.PPG_checkbox.pos = (210, 122)
+        # self.ACC_checkbox.pos = (104, 71)
+        # self.GYRO_checkbox.pos = (210, 71)
+        #
+        # self.notch_label.pos = (128, -190)
+        # self.lowpass_label.pos = (140, -150)
+        # self.highpass_label.pos = (140, -230)
+        # self.lowpass_checkbox.pos = (570, 142)
+        # self.highpass_checkbox.pos = (570, 63)
+        # self.notch_checkbox.pos = (570, 102)
 
-        self.notch_label.pos = (128, -190)
-        self.lowpass_label.pos = (140, -150)
-        self.highpass_label.pos = (140, -230)
-        self.lowpass_checkbox.pos = (570, 142)
-        self.highpass_checkbox.pos = (570, 63)
-        self.notch_checkbox.pos = (570, 102)
+        # self.lowpass_cutoff.pos = (235, -150)
+        # self.highpass_cutoff.pos = (235, -230)
 
-        self.lowpass_cutoff.pos = (235, -150)
-        self.highpass_cutoff.pos = (235, -230)
-
-        self.sensors_title.pos = (-213, -125)
-        self.LSL_title.pos = (-10, -125)
-        self.LSL2_title.pos = (-12, -142)
-        self.filter_title.pos = (200, -125)
+        # self.sensors_title.pos = (-213, -125)
+        # self.LSL_title.pos = (-10, -125)
+        # self.LSL2_title.pos = (-12, -142)
+        # self.filter_title.pos = (200, -125)
 
         # initial state
         self.PPG_checkbox.disabled = True
@@ -203,8 +233,7 @@ class UVicMuse(FloatLayout):
         if self.did_connect:
             pass
         else:
-            self.status_label.text = "Connecting to the selected MUSE...                                 " \
-                                     "                      "
+            self.status_label.text = "Connecting to the selected MUSE..."
 
     # As Search takes 10 seconds, update the status before the process begins
     def update_status_search(self, event):
@@ -258,8 +287,7 @@ class UVicMuse(FloatLayout):
 
         if self.backend.is_udp_streaming:
             self.backend.udp_stop_btn_callback()
-            self.status_label.text = "Data stream has been stopped                                           " \
-                                     "                       "
+            self.status_label.text = "Data stream has been stopped"
             self.stream_button.text = "Start Streaming"
 
             self.lowpass_checkbox.disabled = False
@@ -280,8 +308,7 @@ class UVicMuse(FloatLayout):
             high_pass_cutoff=(float)(self.get_highpass_cutoff()),
             use_notch=self.get_notch_checkbox, )
         if self.backend.is_udp_streaming:
-            self.status_label.text = "Streaming Data                                                      " \
-                                     "                                            "
+            self.status_label.text = "Streaming Data"
             self.stream_button.text = "Stop Streaming"
         else:
             self.status_label.text = "Unsuccessful streaming attempt"
@@ -291,8 +318,7 @@ class UVicMuse(FloatLayout):
         self.button_state(True, False, True, False, True, False, True, True, True, True,
                           False, False, False, False, False, True)
         self.backend.udp_stop_btn_callback()
-        self.status_label.text = "Data stream has been stopped                                           " \
-                                 "                       "
+        self.status_label.text = "Data stream has been stopped"
 
     def get_lowpass_cutoff(self):
         return float(self.lowpass_text.text)
@@ -351,16 +377,14 @@ class UVicMuse(FloatLayout):
                                               self.get_ACC_checkbox(), self.get_GYRO_checkbox())
             self.did_connect = self.backend.is_connected()
             if self.did_connect:
-                self.status_label.text = "                    Successfully connected to " + str(
+                self.status_label.text = "Successfully connected to " + str(
                     self.muses[self.current_muse_id]['name'] + ", select filters to stream data with")
                 self.connected_address = self.muses[self.current_muse_id]['address']
                 self.connect_button.text = "Disconnect"
             else:
-                self.status_label.text = "Unsuccessful connection attempt, make sure Muse is turned on         " \
-                                         "                            "
+                self.status_label.text = "Unsuccessful connection attempt, make sure Muse is turned on"
         except:
-            self.status_label.text = "                      Please select a Muse from the dropdown menu before" \
-                                     " connecting                "
+            self.status_label.text = "Please select a Muse from the dropdown menu before connecting"
             self.button_state(True, True, False,
                               True, True, True, False, False,
                               False, False, True, True,
@@ -375,8 +399,7 @@ class UVicMuse(FloatLayout):
 
         self.backend.disconnect_btn_callback()
         self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id][
-                                                                'name'] + "                                        "
-                                                                          "                         ")
+                                                                'name'] )
         self.did_connect = False
         self.connect_button.text = "Connect"
         self.connect_button.disabled = True
@@ -404,17 +427,16 @@ class UVicMuse(FloatLayout):
             if (len(self.muses)) == 0:
                 self.status_label.text = "No nearby devices were found, please try again                               "
             if (len(self.muses)) == 1:
-                self.status_label.text = "1 device was found, please choose sensors to connect with       "
+                self.status_label.text = "1 device was found, please choose sensors to connect with"
             if (len(self.muses)) > 1:
                 self.status_label.text = str(
-                    len(self.muses)) + " Devices were found, please choose sensors to connect with       "
+                    len(self.muses)) + " Devices were found, please choose sensors to connect with"
 
             self.list_box.values = self.vals
 
             self.list_box.text = str(len(self.muses)) + " Devices were found, Press to choose"
         except:
-            self.status_label.text = "No BLE Module Found                                        " \
-                                     "                                         "
+            self.status_label.text = "No BLE Module Found"
 
 
 class Muse(App):
