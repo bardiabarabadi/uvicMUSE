@@ -13,9 +13,7 @@ import serial
 
 class Backend:
 
-    def __init__(self, muse_backend='bgapi'):  # TODO: Different protocols need different port sfor udp
-        # Solution: Get a 'base' udp port and build all on top of that
-        # Reflect on the matlab function
+    def __init__(self, muse_backend='bgapi'):
         self.notch_a = None
         self.notch_b = None
         self.notch_z = None
@@ -213,7 +211,7 @@ class Backend:
             if self.use_lsl:
                 outlet.push_sample(data[:, ii], timestamps[ii])
 
-            if self.use_low_pass or self.use_high_pass and offset == EEG_PORT_OFFSET:  # TODO: Only Filter EEG
+            if self.use_low_pass or self.use_high_pass and offset == EEG_PORT_OFFSET:  # TODO: Only Filters EEG
                 for i in range(data.shape[0]):
                     data[i, ii], self.filter_z = signal.lfilter(self.filter_b, self.filter_a, [data[i, ii]],
                                                                 zi=self.filter_z)
