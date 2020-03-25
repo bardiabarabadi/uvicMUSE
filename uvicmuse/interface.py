@@ -8,19 +8,20 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.config import Config
 from kivy.uix.popup import Popup
 import kivy.utils
+from uvicmuse.muse import Muse
+from .Backend import Backend
+import pkg_resources
 
 Config.set('graphics', 'width', '750')
 Config.set('graphics', 'height', '600')
 # Config.set('graphics', 'resizable', False)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+# Config.set('kivy','window_icon',r"docs/uvic.png")
 from kivy.uix.image import Image
 from kivy.graphics import *
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
-from uvicmuse.muse import Muse
-from .Backend import Backend
-import pkg_resources
 
 from kivy.core.window import Window
 
@@ -143,10 +144,10 @@ class UVicMuse(FloatLayout):
         self.highpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
                                           pos_hint={'x': 0.82, 'y': 0.5 - 0.375}, color=self.chbx_color)
         # Initiate textbox's to enter text
-        self.lowpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - .255}, size_hint=(0.07, 0.05),
+        self.lowpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - .264}, size_hint=(0.07, 0.05),
                                       multiline=False, text='30', write_tab=False, halign='center',
                                       background_color=(204 / 256, 213 / 256, 216 / 256, 1))
-        self.highpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - 0.385}, size_hint=(0.07, 0.05),
+        self.highpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - 0.394}, size_hint=(0.07, 0.05),
                                        multiline=False, text='0.1', write_tab=False, halign='center',
                                        background_color=(204 / 256, 213 / 256, 216 / 256, 1))
 
@@ -441,10 +442,12 @@ class UVicMuse(FloatLayout):
             self.status_label.text = "No BLE Module Found"
 
 
-class Muse(App):
+class MuseApp(App):
+    title = "uvicMuse"
+
     def build(self):
         return UVicMuse()
 
 
 def runGUI():
-    Muse().run()
+    MuseApp().run()

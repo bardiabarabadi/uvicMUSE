@@ -165,7 +165,7 @@
             A = fread(obj.udp_sock_acc, 4, 'single');
             
             success = ~isempty(A) && size(A,1) == 4;
-            if ~success; return; end
+            if ~success; return; end % TODO: Leave them in as NaNs and let the user decide what to do with it.
             
             data = A(1:3);
             ts = A(4);
