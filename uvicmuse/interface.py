@@ -24,7 +24,7 @@ import pkg_resources
 
 from kivy.core.window import Window
 
-Window.clearcolor = (23 / 256, 63 / 256, 95 / 256, 0.1)
+Window.clearcolor = (240 / 256, 240 / 256, 240 / 256, 0.1)
 
 
 # Frontend Test Branch
@@ -34,8 +34,9 @@ class UVicMuse(FloatLayout):
         super(UVicMuse, self).__init__(**kwargs)
 
         self.press_search_txt = "Search for a list of Available Muses"
-        self.btn_color = (108 / 256, 91 / 256, 123 / 256, 1)
-        self.txt_color = kivy.utils.get_color_from_hex("#3caea3")
+        self.btn_color = (204 / 256, 213 / 256, 216 / 256, 1)
+        self.txt_color = kivy.utils.get_color_from_hex("#5a636c")
+        self.chbx_color = kivy.utils.get_color_from_hex("#0f0f0f")
         # self.txt_color = kivy.utils.get_color_from_hex("#F8B195")
         self.muses = []
         self.sock = None
@@ -50,7 +51,7 @@ class UVicMuse(FloatLayout):
 
         # Create UVic Muse Logo
         DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
-        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'))
+        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'), allow_stretch=True)
 
         # Initiate Labels
         self.status_label = Label(
@@ -63,9 +64,6 @@ class UVicMuse(FloatLayout):
         #
         #     Color(133 / 256, 169 / 256, 204 / 256)
         #     Rectangle()
-
-
-
 
         # self.canvas = RectWidg(size_hint=(1.0, 0.5), pos_hint={'x': 0.2, 'y':0.75})
         # self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
@@ -85,11 +83,11 @@ class UVicMuse(FloatLayout):
                                   pos_hint={'x': +0.3, 'y': -.18})
 
         self.about_button = Button(text="About Us", size_hint=(.15, .0060), pos_hint={'x': 0.84, 'y': .022},
-                                   background_color=(4 / 256, 14 / 256, 71 / 256, 1),
+                                   background_color=self.btn_color,
                                    on_release=self.about)
 
         self.reset_button = Button(text="Reset Kernel", size_hint=(.15, .0060), pos_hint={'x': 0.01, 'y': .022},
-                                   background_color=(158 / 256, 56 / 256, 30 / 256, 1),
+                                   background_color=(241 / 256, 148 / 256, 163 / 256, 1),
                                    on_release=self.reset)
 
         self.search_button = Button(text="Search", size_hint=(.15, .07), pos_hint={'x': 0.82, 'y': .6},
@@ -127,26 +125,30 @@ class UVicMuse(FloatLayout):
         self.list_box.dropdown_cls.max_height = self.list_box.height * 1.6
 
         # Initiate Checkbox's
-        self.LSL_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.49, 'y': +.18})
-        self.EEG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.13})
-        self.PPG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.23})
-        self.ACC_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.144, 'y': +.13})
+        self.LSL_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.49, 'y': +.18},
+                                     color=self.chbx_color)
+        self.EEG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.13},
+                                     color=self.chbx_color)
+        self.PPG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.23},
+                                     color=self.chbx_color)
+        self.ACC_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.144, 'y': +.13},
+                                     color=self.chbx_color)
         self.GYRO_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
-                                      pos_hint={'x': 0.144, 'y': +.23})
+                                      pos_hint={'x': 0.144, 'y': +.23}, color=self.chbx_color)
 
         self.lowpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
-                                         pos_hint={'x': 0.82, 'y': 0.5 - .245})
+                                         pos_hint={'x': 0.82, 'y': 0.5 - .245}, color=self.chbx_color)
         self.notch_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02,
-                                       pos_hint={'x': 0.82, 'y': 0.5 - 0.31})
+                                       pos_hint={'x': 0.82, 'y': 0.5 - 0.31}, color=self.chbx_color)
         self.highpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
-                                          pos_hint={'x': 0.82, 'y': 0.5 - 0.375})
+                                          pos_hint={'x': 0.82, 'y': 0.5 - 0.375}, color=self.chbx_color)
         # Initiate textbox's to enter text
         self.lowpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - .255}, size_hint=(0.07, 0.05),
                                       multiline=False, text='30', write_tab=False, halign='center',
-                                      background_color=(133 / 256, 169 / 256, 204 / 256, 1))
+                                      background_color=(204 / 256, 213 / 256, 216 / 256, 1))
         self.highpass_text = TextInput(font_size='14sp', pos_hint={"x": 0.85, "y": 0.5 - 0.385}, size_hint=(0.07, 0.05),
                                        multiline=False, text='0.1', write_tab=False, halign='center',
-                                       background_color=(133 / 256, 169 / 256, 204 / 256, 1))
+                                       background_color=(204 / 256, 213 / 256, 216 / 256, 1))
 
         # add widgets that have been initiated to frame
         self.add_widget(self.img)
@@ -399,7 +401,7 @@ class UVicMuse(FloatLayout):
 
         self.backend.disconnect_btn_callback()
         self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id][
-                                                                'name'] )
+                                                                'name'])
         self.did_connect = False
         self.connect_button.text = "Connect"
         self.connect_button.disabled = True
