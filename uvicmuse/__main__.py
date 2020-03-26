@@ -1,4 +1,4 @@
-from uvicmuse.interface import runGUI
+from .interface import runGUI
 
 
 def main():

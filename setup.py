@@ -17,7 +17,6 @@ def copy_docs():
 
     copyfile("docs/Header.png", docs_dir + "/Header.png")
     copyfile("docs/README.md", docs_dir + "/README.md")
-    copyfile("docs/uvic.ico", docs_dir + "/uvic.ico")
 
 
 copy_docs()

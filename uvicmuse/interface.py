@@ -8,25 +8,19 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.config import Config
 from kivy.uix.popup import Popup
 import kivy.utils
-from uvicmuse.muse import Muse
 from .Backend import Backend
-import pkg_resources
+from .helper import resource_path
 
 Config.set('graphics', 'width', '750')
 Config.set('graphics', 'height', '600')
-# Config.set('graphics', 'resizable', False)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
-# Config.set('kivy','window_icon',r"docs/uvic.png")
 from kivy.uix.image import Image
-from kivy.graphics import *
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
+from kivy.graphics import Color, Rectangle
 
-from kivy.core.window import Window
-
-Window.clearcolor = (240 / 256, 240 / 256, 240 / 256, 0.1)
-
+from kivy.resources import resource_add_path
 
 # Frontend Test Branch
 class UVicMuse(FloatLayout):
@@ -50,9 +44,17 @@ class UVicMuse(FloatLayout):
         self.backend = Backend(self.muse_backend)
         self.current_muse_id = 0
 
+        def draw_background(widget, prop):
+            with widget.canvas.before:
+                Color(rgba=(240 / 256, 240 / 256, 240 / 256, 1))
+                Rectangle(pos=self.pos, size=self.size)
+
+        self.bind(size=draw_background)
+        self.bind(pos=draw_background)
+
         # Create UVic Muse Logo
-        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
-        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'), allow_stretch=True)
+        DATA_PATH = resource_path('Header.png')
+        self.img = Image(source=DATA_PATH, allow_stretch=True)
 
         # Initiate Labels
         self.status_label = Label(
@@ -61,10 +63,7 @@ class UVicMuse(FloatLayout):
             valign="middle")
         self.status_label.bind(size=self.status_label.setter('text_size'))
 
-        # with self.canvas:
-        #
-        #     Color(133 / 256, 169 / 256, 204 / 256)
-        #     Rectangle()
+
 
         # self.canvas = RectWidg(size_hint=(1.0, 0.5), pos_hint={'x': 0.2, 'y':0.75})
         # self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
@@ -448,6 +447,8 @@ class MuseApp(App):
     title = "uvicMuse"
 
     def build(self):
+        resource_add_path(resource_path('.'))
+
         return UVicMuse()
 
 

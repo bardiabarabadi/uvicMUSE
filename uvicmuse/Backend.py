@@ -1,14 +1,13 @@
-from uvicmuse.constants import *
-from uvicmuse.helper import *
+from .constants import *
+from .helper import *
 from functools import partial
 from uvicmuse.muse import Muse
 import socket
 import struct
-import pygatt, os
+import os
 from pylsl import StreamInfo, StreamOutlet
 import platform
 from scipy import signal
-import serial
 
 
 class Backend:

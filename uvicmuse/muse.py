@@ -1,10 +1,9 @@
 import bitstring
-import pygatt
 import numpy as np
 from time import time, sleep
 import subprocess
-import uvicmuse.helper as helper
-from uvicmuse.constants import *
+from .helper import *
+from .constants import *
 
 
 class Muse():
@@ -44,7 +43,7 @@ class Muse():
         self.interface = interface
         self.time_func = time_func
 
-        self.backend = helper.resolve_backend(backend)
+        self.backend = resolve_backend(backend)
 
     def connect(self):
         """Connect to the device"""
@@ -143,9 +142,6 @@ class Muse():
         "ps": preset selected
         "rc": return status, if 0 is OK
         """
-        if self.backend == 'bluemuse':
-            helper.warn_bluemuse_not_supported()
-            return
         self._write_cmd([0x02, 0x73, 0x0a])
 
     def ask_device_info(self):
@@ -162,9 +158,6 @@ class Muse():
         "pv": protocol version?
         "rc": return status, if 0 is OK
         """
-        if self.backend == 'bluemuse':
-            helper.warn_bluemuse_not_supported()
-            return
         self._write_cmd([0x03, 0x76, 0x31, 0x0a])
 
     def ask_reset(self):
@@ -483,7 +476,7 @@ class Muse():
                                   callback=self._handle_ppg)
 
         except pygatt.exceptions.BLEError as error:
-            raise helper.PPG_error
+            raise PPG_error
             # raise Exception('PPG data is not available on this device. PPG is only available on Muse 2')
 
     def _handle_ppg(self, handle, data):
