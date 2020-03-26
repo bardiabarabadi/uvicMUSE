@@ -104,13 +104,13 @@ class UVicMuse(FloatLayout):
                                     on_release=self.stream)
 
         # self.LSL_label = Label(text="LSL", color=self.txt_color, font_size='14sp')
-        self.EEG_label = Label(text="EEG", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.2355, 'y': -.32},
+        self.EEG_label = Label(text="EEG", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.3455, 'y': -.22},
                                halign='center')
         self.PPG_label = Label(text="PPG", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.2355, 'y': -.22},
                                halign='center')
         self.ACC_label = Label(text="ACC", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.3455, 'y': -.32},
                                halign='center')
-        self.GYRO_label = Label(text="GYRO", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.3455, 'y': -.22},
+        self.GYRO_label = Label(text="GYRO", color=self.txt_color, font_size='14sp', pos_hint={'x': -0.2355, 'y': -.32},
                                 halign='center')
 
         self.lowpass_label = Label(text="Lowpass", color=self.txt_color, font_size='16sp',
@@ -128,14 +128,14 @@ class UVicMuse(FloatLayout):
         # Initiate Checkbox's
         self.LSL_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.49, 'y': +.18},
                                      color=self.chbx_color)
-        self.EEG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.13},
+        self.EEG_checkbox = CheckBox(active=True, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.144, 'y': +.23},
                                      color=self.chbx_color)
         self.PPG_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.254, 'y': +.23},
                                      color=self.chbx_color)
         self.ACC_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02, pos_hint={'x': 0.144, 'y': +.13},
                                      color=self.chbx_color)
         self.GYRO_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
-                                      pos_hint={'x': 0.144, 'y': +.23}, color=self.chbx_color)
+                                      pos_hint={'x': 0.254, 'y': +.13}, color=self.chbx_color)
 
         self.lowpass_checkbox = CheckBox(active=False, size_hint_y=0.02, size_hint_x=0.02,
                                          pos_hint={'x': 0.82, 'y': 0.5 - .245}, color=self.chbx_color)
@@ -230,6 +230,7 @@ class UVicMuse(FloatLayout):
         self.stream_button.disabled = True
         self.connect_button.disabled = True
 
+
     # logic
 
     def on_connect_press(self, event):
@@ -298,6 +299,7 @@ class UVicMuse(FloatLayout):
             self.notch_checkbox.disabled = False
             self.highpass_text.disabled = False
             self.lowpass_text.disabled = False
+            self.LSL_checkbox.disabled = False
 
             return
 
