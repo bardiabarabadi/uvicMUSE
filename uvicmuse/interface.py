@@ -28,7 +28,7 @@ class UVicMuse(FloatLayout):
     def __init__(self, **kwargs):
         super(UVicMuse, self).__init__(**kwargs)
 
-        self.press_search_txt = "Search for a list of Available Muses"
+        self.press_search_txt = "Search for a list of Available Muses on BLE"
         self.btn_color = (204 / 256, 213 / 256, 216 / 256, 1)
         self.txt_color = kivy.utils.get_color_from_hex("#5a636c")
         self.chbx_color = kivy.utils.get_color_from_hex("#0f0f0f")
