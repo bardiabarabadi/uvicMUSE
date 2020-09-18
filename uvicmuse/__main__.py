@@ -1,5 +1,5 @@
+# from interface import runGUI
 from .interface import runGUI
-
 
 def main():
     runGUI()

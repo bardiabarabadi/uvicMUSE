@@ -1,6 +1,8 @@
 import os
 
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
+import nest_asyncio
+nest_asyncio.apply()
+# os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -10,6 +12,13 @@ from kivy.uix.popup import Popup
 import kivy.utils
 from .Backend import Backend
 from .helper import resource_path
+
+# from Backend import Backend
+# from helper import resource_path
+from .constants import *
+# from constants import *
+# from MuseFinder import MuseFinder
+from .MuseFinder import MuseFinder
 
 Config.set('graphics', 'width', '750')
 Config.set('graphics', 'height', '600')
@@ -21,13 +30,14 @@ from kivy.uix.spinner import Spinner
 from kivy.graphics import Color, Rectangle
 
 from kivy.resources import resource_add_path
+import asyncio
+
 
 # Frontend Test Branch
 class UVicMuse(FloatLayout):
 
     def __init__(self, **kwargs):
         super(UVicMuse, self).__init__(**kwargs)
-
         self.press_search_txt = "Search for a list of Available Muses on BLE"
         self.btn_color = (204 / 256, 213 / 256, 216 / 256, 1)
         self.txt_color = kivy.utils.get_color_from_hex("#5a636c")
@@ -39,9 +49,8 @@ class UVicMuse(FloatLayout):
         self.did_connect = False
         self.udp_address = ""
         self.connected_address = ""
-        self.muse_backend = 'bgapi'
         self.host_address = 'localhost'
-        self.backend = Backend(self.muse_backend)
+        self.backend = Backend()
         self.current_muse_id = 0
 
         def draw_background(widget, prop):
@@ -62,8 +71,6 @@ class UVicMuse(FloatLayout):
             color=self.txt_color, font_size='16sp', pos_hint={'x': 0.033, 'y': .2}, size_hint=(1.0, 1.0), halign="left",
             valign="middle")
         self.status_label.bind(size=self.status_label.setter('text_size'))
-
-
 
         # self.canvas = RectWidg(size_hint=(1.0, 0.5), pos_hint={'x': 0.2, 'y':0.75})
         # self.canvas.add(Color(133 / 256, 169 / 256, 204 / 256))
@@ -229,7 +236,6 @@ class UVicMuse(FloatLayout):
         self.stream_button.disabled = True
         self.connect_button.disabled = True
 
-
     # logic
 
     def on_connect_press(self, event):
@@ -264,7 +270,7 @@ class UVicMuse(FloatLayout):
 
     def about(self, event):
         popup = Popup(title="About UVicMUSE", content=Label(text='Developed and Designed by \nBardia'
-                                                                 'Barabadi & Jamieson Fregeau\n\nKrigolson Lab '
+                                                                 'Barabadi\n\nKrigolson Lab '
                                                                  '(Theoretical and \nApplied Neuroscience Laboratory)\n\n'
                                                                  'University of Victoria, Canada, 2020.'
                                                             ), size_hint=(None, None), size=(300, 200))
@@ -277,7 +283,7 @@ class UVicMuse(FloatLayout):
             self.muses = []
             self.muse = []
             self.host_address = 'localhost'
-            self.backend = Backend(self.muse_backend)
+            self.backend = Backend()
             self.current_muse_id = 0
             self.did_connect = False
             self.connect_button.text = "Connect"
@@ -377,13 +383,12 @@ class UVicMuse(FloatLayout):
 
             self.current_muse_id = self.list_box.values.index(self.list_box.text)
 
-            self.backend.connect_btn_callback(self.current_muse_id, self.get_EEG_checkbox(), self.get_PPG_checkbox(),
-                                              self.get_ACC_checkbox(), self.get_GYRO_checkbox())
+            self.backend.connect_btn_callback(self.current_muse_id)
             self.did_connect = self.backend.is_connected()
             if self.did_connect:
                 self.status_label.text = "Successfully connected to " + str(
-                    self.muses[self.current_muse_id]['name'] + ", select filters to stream data with")
-                self.connected_address = self.muses[self.current_muse_id]['address']
+                    self.muses[self.current_muse_id].name + ", select filters to stream data with")
+                self.connected_address = self.muses[self.current_muse_id].address
                 self.connect_button.text = "Disconnect"
             else:
                 self.status_label.text = "Unsuccessful connection attempt, make sure Muse is turned on"
@@ -402,8 +407,7 @@ class UVicMuse(FloatLayout):
                           False, False, False, False, False)
 
         self.backend.disconnect_btn_callback()
-        self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id][
-                                                                'name'])
+        self.status_label.text = "Disconnected from " + str(self.muses[self.current_muse_id].name)
         self.did_connect = False
         self.connect_button.text = "Connect"
         self.connect_button.disabled = True
@@ -423,10 +427,11 @@ class UVicMuse(FloatLayout):
                               True, True, True, False)
 
             self.connect_button.disabled = False
-            self.muses, succeed = self.backend.refresh_btn_callback()
+
+            self.muses, succeed = self.backend.refresh_btn_callback(event)
             self.vals = []
             for i in range(len(self.muses)):
-                self.vals.append(self.muses[i]['name'] + " Mac Address " + str(self.muses[i]['address']))
+                self.vals.append(self.muses[i].name + ", Address: " + str(self.muses[i].address))
 
             if (len(self.muses)) == 0:
                 self.status_label.text = "No nearby devices were found, please try again                               "
@@ -453,4 +458,6 @@ class MuseApp(App):
 
 
 def runGUI():
-    MuseApp().run()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(App.async_run(MuseApp(),async_lib='asyncio'))
+    loop.close()

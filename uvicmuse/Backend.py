@@ -1,18 +1,24 @@
+# from constants import *
 from .constants import *
+# from helper import *
 from .helper import *
 from functools import partial
-from uvicmuse.muse import Muse
+from .MuseBLE import MuseBLE as muse
+from .MuseFinder import MuseFinder
+# from MuseBLE import MuseBLE as muse
+# from MuseFinder import MuseFinder
 import socket
 import struct
 import os
 from pylsl import StreamInfo, StreamOutlet
 import platform
+import asyncio
 from scipy import signal
 
 
 class Backend:
 
-    def __init__(self, muse_backend='bgapi'):  # TODO: Different protocols need different port sfor udp
+    def __init__(self):  # TODO: Different protocols need different port sfor udp
         # Solution: Get a 'base' udp port and build all on top of that
         # Reflect on the matlab function
         self.notch_a = None
@@ -24,7 +30,6 @@ class Backend:
         self.muse = None
         self.muse_obj = None
         self.is_muse_connected = False
-        self.muse_backend = muse_backend
 
         self.use_lsl = True
 
@@ -51,18 +56,17 @@ class Backend:
                 self.interface = "/dev/ttyACM1"
 
     # + MUSE interface functions
-    def refresh_btn_callback(self):
+
+    def refresh_btn_callback(self, event):
         succeed = False
-        # try:
-        self.muses = list_muses(interface=self.interface)
-        # except pygatt.exceptions.BLEError:
-        #     return ["No BLE Module Found."], succeed
+        mf = MuseFinder(add_muse_to_list_callback=self.muses.append)
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(mf.search_for_muses(timeout=10))
 
-        succeed = True
+        self.muses = mf.get_muses()
+        return self.muses, True
 
-        return self.muses, succeed
-
-    def connect_btn_callback(self, current_muse_id, use_EEG, use_PPG, use_ACC, use_gyro):
+    def connect_btn_callback(self, current_muse_id):
         error_msg = ''
         self.muse = self.muses[current_muse_id]
 
@@ -71,19 +75,20 @@ class Backend:
         acc_outlet = self._get_acc_outlet()
         gyro_outlet = self._get_gyro_outlet()
 
-        push_eeg = partial(self._push, outlet=eeg_outlet, offset=EEG_PORT_OFFSET) if use_EEG else None
-        push_ppg = partial(self._push, outlet=ppg_outlet, offset=PPG_PORT_OFFSET) if use_PPG else None
-        push_acc = partial(self._push, outlet=acc_outlet, offset=ACC_PORT_OFFSET) if use_ACC else None
-        push_gyro = partial(self._push, outlet=gyro_outlet, offset=GYRO_PORT_OFFSET) if use_gyro else None
+        push_eeg = partial(self._push, outlet=eeg_outlet, offset=EEG_PORT_OFFSET)
+        push_ppg = partial(self._push, outlet=ppg_outlet, offset=PPG_PORT_OFFSET)
+        push_acc = partial(self._push, outlet=acc_outlet, offset=ACC_PORT_OFFSET)
+        push_gyro = partial(self._push, outlet=gyro_outlet, offset=GYRO_PORT_OFFSET)
 
-        self.muse_obj = Muse(address=self.get_muse_address(), callback_eeg=push_eeg,
+        self.muse_obj = muse(client=self.muse, callback_eeg=push_eeg,
                              callback_ppg=push_ppg, callback_acc=push_acc,
-                             callback_gyro=push_gyro, backend=self.muse_backend,
-                             interface=self.interface, name=self.get_muse_name())
+                             callback_gyro=push_gyro, callback_control=self.command_callback)
 
         try:
-            self.is_muse_connected = self.muse_obj.connect()
-        except PPG_error:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(self.muse_obj.connect())
+            self.is_muse_connected = True
+        except muse.PPG_error:
             error_msg = 'MSUE2 is needed for PPG'
 
         return self.is_muse_connected, error_msg
@@ -92,8 +97,8 @@ class Backend:
         if not self.is_muse_connected:
             return False
         else:
-            self.muse_obj.stop()
-            self.muse_obj.disconnect()
+            loop=asyncio.get_event_loop()
+            loop.run_until_complete(self.muse_obj.disconnect())
             self.is_muse_connected = False
             self.muse_obj = None
             return True
@@ -133,12 +138,15 @@ class Backend:
         self.notch_b, self.notch_a = signal.iirnotch(w0=self.notch_fs * 2 / self.fs, Q=20, fs=self.fs)
         self.notch_z = signal.lfilter_zi(self.notch_b, self.notch_a)
 
-        self.muse_obj.start()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(
+            self.muse_obj.start())
 
         return
 
     def udp_stop_btn_callback(self):
-        self.muse_obj.stop()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.muse_obj.stop())
         self.udp_port = 0
         self.udp_address = ''
         self.is_udp_streaming = False
@@ -157,10 +165,13 @@ class Backend:
     # - Status functions
 
     def get_muse_name(self):
-        return self.muse['name']
+        return self.muse.name
 
     def get_muse_address(self):
-        return self.muse['address']
+        return self.muse.address
+
+    def get_muse(self):
+        return self.muse
 
     def _get_eeg_outlet(self):
         # Connecting to MUSE
@@ -239,3 +250,7 @@ class Backend:
                     if not is_data_valid(data[:, ii], timestamps[ii]):
                         continue
                     self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))
+
+    def command_callback(self,a):
+        print("Received command callback completely: ")
+        print (a)
