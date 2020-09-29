@@ -252,8 +252,8 @@ class MuseBLE(object):
     # Handlers
     def _handle_control(self, sender, packet):
         # Handles the message coming from the control sequence
-        assert str(sender).__eq__(MUSE_GATT_ATTR_CONTROL.upper()), "_handle_control is receiving a message " \
-                                                                             "with a different UUID "
+        assert sender == 13, "_handle_control is receiving a message " \
+                             "with a different UUID " + str(sender)
 
         bit_decoder = bitstring.Bits(bytes=packet)
         pattern = "uint:8,uint:8,uint:8,uint:8,uint:8,uint:8,uint:8,uint:8,uint:8,uint:8, \
@@ -273,7 +273,7 @@ class MuseBLE(object):
             self._init_sample_control()
 
     def _handle_eeg(self, sender, packet):
-        index = int(str(sender)[7]) - 3
+        index = int((sender - 32) / 3)
         timestamp = time()
         tm, d = self._unpack_eeg_channel(packet)
 
@@ -310,16 +310,7 @@ class MuseBLE(object):
         wait until we get x and call the data callback
         """
 
-        val = (str(sender)[7])
-        if val is 'F':
-            handle = 56
-        elif val is '0':
-            handle = 59
-        elif val is '1':
-            handle = 62
-        else:
-            assert 1 == 2
-
+        handle = sender-1
         timestamp = time()
         index = int((handle - 56) / 3)
         tm, d = self._unpack_ppg_channel(data)
@@ -355,8 +346,10 @@ class MuseBLE(object):
     def _handle_acc(self, sender, packet):
         """Handle incoming accelerometer data.
         sampling rate: ~17 x second (3 samples in each message, roughly 50Hz)"""
-        if str(sender).lower() != MUSE_GATT_ATTR_ACCELEROMETER.lower():
+        if sender != 22:  # handle 0x17
+            print ("ERROR ACC" + str(sender))
             return
+
         timestamps = [time()] * 3
 
         # save last timestamp for disconnection timer
@@ -370,9 +363,9 @@ class MuseBLE(object):
     def _handle_gyro(self, sender, packet):
         """Handle incoming gyroscope data.
         sampling rate: ~17 x second (3 samples in each message, roughly 50Hz)"""
-        if str(sender).lower() != MUSE_GATT_ATTR_GYRO.lower():
+        if sender != 19:  # handle 0x14
+            print ("ERROR GYRO" + str(sender))
             return
-
         timestamps = [time()] * 3
 
         # save last timestamp for disconnection timer
@@ -386,8 +379,8 @@ class MuseBLE(object):
     def _handle_tele(self, sender, packet):
         """Handle the telemetry (battery, temperature and stuff) incoming data
         """
-
-        if str(sender).lower() != MUSE_GATT_ATTR_TELEMETRY.lower():
+        if sender != 26:  # handle 0x1a
+            print ("ERROR TELE" + str(sender))
             return
         timestamp = time()
 

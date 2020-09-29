@@ -97,7 +97,7 @@ class Backend:
         if not self.is_muse_connected:
             return False
         else:
-            loop=asyncio.get_event_loop()
+            loop = asyncio.get_event_loop()
             loop.run_until_complete(self.muse_obj.disconnect())
             self.is_muse_connected = False
             self.muse_obj = None
@@ -251,6 +251,6 @@ class Backend:
                         continue
                     self.socket.sendto(udp_msg, (self.udp_address, self.udp_port + offset))
 
-    def command_callback(self,a):
+    def command_callback(self, a):
         print("Received command callback completely: ")
-        print (a)
+        print(a)
