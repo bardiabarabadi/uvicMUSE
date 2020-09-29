@@ -32,6 +32,7 @@ from kivy.graphics import Color, Rectangle
 
 from kivy.resources import resource_add_path
 import asyncio
+import pkg_resources
 
 
 # Frontend Test Branch
@@ -64,8 +65,8 @@ class UVicMuse(FloatLayout):
         self.bind(pos=draw_background)
 
         # Create UVic Muse Logo
-        DATA_PATH = resource_path('docs/Header.png')
-        self.img = Image(source=DATA_PATH, allow_stretch=True)
+        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs/')
+        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'), allow_stretch=True)
 
         # Initiate Labels
         self.status_label = Label(
