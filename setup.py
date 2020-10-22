@@ -47,18 +47,17 @@ setup(
         "pexpect",
         "pillow",
         "bleak",
-        "kivy==2.0.0rc2",
+        "kivy==2.0.0rc4",
         "docutils",
         "pygments",
         "pyserial",
         "esptool",
         "nest_asyncio",
+        "pylsl==1.10.5",
         'pypiwin32 ; platform_system=="Windows"',
-        'pylsl ; platform_system!="Linux"',
         'kivy.deps.glew ; platform_system=="Windows"',
         'kivy.deps.sdl2 ; platform_system=="Windows"',
         'kivy.deps.gstreamer ; platform_system=="Windows"',
-        'pylsl==1.10.5 ; platform_system=="Linux"'
     ]
     ,
     classifiers=[

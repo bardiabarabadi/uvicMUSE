@@ -1,6 +1,7 @@
 from bleak import discover
-from .constants import *
-# from constants import *
+
+# from .constants import *
+from constants import *
 
 class MuseFinder(object):
 

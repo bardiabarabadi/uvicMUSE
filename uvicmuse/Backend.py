@@ -1,12 +1,13 @@
-# from constants import *
-from .constants import *
-# from helper import *
-from .helper import *
+from constants import *
+from helper import *
+from MuseBLE import MuseBLE as muse
+from MuseFinder import MuseFinder
+# from .constants import *
+# from .helper import *
+# from .MuseBLE import MuseBLE as muse
+# from .MuseFinder import MuseFinder
+
 from functools import partial
-from .MuseBLE import MuseBLE as muse
-from .MuseFinder import MuseFinder
-# from MuseBLE import MuseBLE as muse
-# from MuseFinder import MuseFinder
 import socket
 import struct
 import os
@@ -34,7 +35,7 @@ class Backend:
         self.use_lsl = True
 
         self.udp_port = 0
-        self.udp_address = ''
+        self.udp_address = '127.0.0.1'
         self.is_udp_streaming = False
         self.socket = None
 
@@ -109,7 +110,7 @@ class Backend:
     def udp_stream_btn_callback(self, use_low_pass, use_high_pass, low_pass_cutoff,
                                 high_pass_cutoff, use_notch):
         self.udp_port = 1963
-        self.udp_address = 'localhost'
+        self.udp_address = '127.0.0.1'
         self.is_udp_streaming = True
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.use_low_pass = use_low_pass
@@ -148,7 +149,7 @@ class Backend:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.muse_obj.stop())
         self.udp_port = 0
-        self.udp_address = ''
+        self.udp_address = '127.0.0.1'
         self.is_udp_streaming = False
         self.socket = None
         return

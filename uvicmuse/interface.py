@@ -3,7 +3,9 @@ import os
 import nest_asyncio
 
 nest_asyncio.apply()
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
+# os.environ["KIVY_NO_CONSOLELOG"] = "1"
+
+from importlib import __import__
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -11,15 +13,12 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.config import Config
 from kivy.uix.popup import Popup
 import kivy.utils
-from .Backend import Backend
-from .helper import resource_path
 
-# from Backend import Backend
-# from helper import resource_path
-from .constants import *
-# from constants import *
-# from MuseFinder import MuseFinder
-from .MuseFinder import MuseFinder
+# from .Backend import Backend
+# from .helper import resource_path
+# from .constants import *
+# from .MuseFinder import MuseFinder
+
 
 Config.set('graphics', 'width', '750')
 Config.set('graphics', 'height', '400')
@@ -34,6 +33,9 @@ from kivy.resources import resource_add_path
 import asyncio
 import pkg_resources
 
+
+from helper import resource_path
+from constants import *
 
 # Frontend Test Branch
 # noinspection PyBroadException,PyUnusedLocal
@@ -50,10 +52,9 @@ class UVicMuse(FloatLayout):
         self.sock = None
         self.muse = None
         self.did_connect = False
-        self.udp_address = ""
+        self.udp_address = 'localhost'
         self.connected_address = ""
         self.host_address = 'localhost'
-        self.backend = Backend()
         self.current_muse_id = 0
 
         def draw_background(widget, prop):
@@ -120,6 +121,8 @@ class UVicMuse(FloatLayout):
                                        multiline=False, text='0.1', write_tab=False, halign='center',
                                        background_color=(204 / 256, 213 / 256, 216 / 256, 1))
 
+
+
         # add widgets that have been initiated to frame
         self.add_widget(self.img)
         self.add_widget(self.about_button)
@@ -149,6 +152,10 @@ class UVicMuse(FloatLayout):
         self.lowpass_text.disabled = True
         self.stream_button.disabled = True
         self.connect_button.disabled = True
+
+        from Backend import Backend
+
+        self.backend = Backend()
 
     # logic
 
@@ -335,3 +342,4 @@ def runGUI():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(App.async_run(MuseApp(), async_lib='asyncio'))
     loop.close()
+    # MuseApp().run()
