@@ -4,21 +4,27 @@
 An application for streaming from MUSE headsets to MATLAB and other 
 platforms. 
 
-## Requirements
+## Software Requirements
 
-The code relies on [pygatt](https://github.com/peplin/pygatt) for BLE communication 
-    and [pylsl](https://github.com/chkothe/pylsl) for Muse streaming. For the best result use [BLED112](http://www.farnell.com/datasheets/2674198.pdf?_ga=2.79024144.587051681.1584504877-1039421750.1584504877&_gac=1.255907449.1584504893.Cj0KCQjw6sHzBRCbARIsAF8FMpWVas72rjYW8HkIbpjfUe97CBonZR71Yi22iGbSvDSER9rcJJ1JbqsaAit0EALw_wcB).
-We highly recommend installing on a virtual environment (VE). You can build and manage those VEs using [Anaconda](https://www.anaconda.com/), 
-        the instructions to install and setup a conda environment is described [here](https://docs.anaconda.com/anaconda/install/).
+The code relies on [bleak](https://github.com/hbldh/bleak) (macOS) and [pygatt](https://github.com/peplin/pygatt) (Windows & Linux) for BLE communication 
+and [pylsl](https://github.com/chkothe/pylsl) for LSL streaming. We highly recommend installing on a virtual environment (VE). You can build and manage those VEs using [Anaconda](https://www.anaconda.com/), 
+the instructions to install and setup a conda environment is described [here](https://docs.anaconda.com/anaconda/install/).
 
-
-
-**Compatible with Python 3.x**
-
-**Compatible with MUSE _MU-02_ and _MU-03_**
+**Compatible with Python 3.8+**
 
 _Note: if you run into any issues, first check out out Common Issues
 and then the Issues section of [this](https://github.com/bardiabarabadi/uvicMUSE) repository_
+
+## Hardware Requirements
+
+** Compatible with MUSE _MU-02_ and _MU-03_
+
+##### MacOS:
+This app uses the built-in bluetooth hardware to communicate with MUSE. No extra hardware is required.
+
+##### Windows & Linux:
+UVic MUSE requires an USB dongle (use [BLED112](http://www.farnell.com/datasheets/2674198.pdf?_ga=2.79024144.587051681.1584504877-1039421750.1584504877&_gac=1.255907449.1584504893.Cj0KCQjw6sHzBRCbARIsAF8FMpWVas72rjYW8HkIbpjfUe97CBonZR71Yi22iGbSvDSER9rcJJ1JbqsaAit0EALw_wcB) 
+for the best results) to communicate with MUSE on windows and Linux. **Make sure you install the correct version.**
 
 ## Getting Started
 
@@ -27,7 +33,7 @@ Transmitted data from _Streamer_ side then can be received and used by the _Rece
 Take a look at this chart below:
 
 
-![Top](image.png)
+![Top](image-01.png)
 
 This project has two sections, first, *UVic MUSE* that connects to MUSE 
 over Bluetooth and streams its data over UDP and LSL.
@@ -48,11 +54,11 @@ open a terminal, and follow these commands:
 **If you don't want to use a virtual environment, use Terminal (Linux and OSx) 
 or Command Prompt (Windows) and skip the optional steps.**
 
-(optinal) Create a new conda environment.
+(optional) Create a new conda environment.
     
-    conda create --name muse_env python=3.7
+    conda create --name muse_env python=3.8
     
-(optinal) Activate conda environment
+(optional) Activate conda environment
     
     conda activate muse_env
     
@@ -64,10 +70,9 @@ Install dependencies
     
 Install UVicMUSE using `pip`
 
-    pip install --upgrade uvicmuse
+    pip install --force-reinstall uvicmuse==3.1.0 # for Windows & Linux (with dongle)
+    pip install --force-reinstall uvicmuse==5.0.0 # for macOS (built-in bluetooth)
     
-
-
     
 #### Running UVicMUSE:
 
@@ -93,14 +98,14 @@ and typing uvicmuse**
 Follow steps shown below to stream the MUSE sensory data. Remember to correctly specify the **Required Entries** variables
 before moving on to the next step. 
 
-1. Search to get a list of available MUSEs
-2. Connect to one of the MUSEs. **Required Entries** = Checkboxes (UDP, LSL, EEG, PPG, ACC, GYRO) 
-3. Start Streaming over UDP and LSL (if enabled). **Required Entries** = Filters (Highpass, Lowpass, Notch)
+- Search to get a list of available MUSEs
+- Connect to one of the MUSEs. **Required Entries** = Checkboxes (UDP, LSL, EEG, PPG, ACC, GYRO) 
+- Start Streaming over UDP and LSL (if enabled). **Required Entries** = Filters (Highpass, Lowpass, Notch)
 
 Notes:
 * Stopping the stream won't disconnect the MUSE (use this feature for changing filters configurations)
 * Search is required after disconnecting from a MUSE 
-
+* There is no need to set checkboxes on macOS, all sensors are active by default
 
 ## Receiver Toolbox (MuseUdp)
 
@@ -109,7 +114,7 @@ is to connect to UDP socket (same socket as UVic MUSE) and receive data that is 
 
 #### MATLAB Toolbox
 
-Donwload [MuseUdp Toolbox](https://www.mathworks.com/matlabcentral/fileexchange/74583-museudp) from MATLAB file exchange. 
+Download [MuseUdp Toolbox](https://www.mathworks.com/matlabcentral/fileexchange/74583-museudp) from MATLAB file exchange. 
 Open and install the toolbox on MATLAB. Moreover, you need to install [Instrument Control Toolbox](https://www.mathworks.com/products/instrument.html)
  to establish UDP connections.
  
@@ -123,7 +128,7 @@ To get a single sample from UVic MUSE use:
     mu = MuseUdp();
     [data, timestamp, success] = mu.get_xxx_sample()
 
-Repace `xxx`with `eeg`, `ppg`, `acc` or `gyro`. The sampled data may have different size according to `xxx`, `eeg` has 5 
+Replace `xxx`with `eeg`, `ppg`, `acc` or `gyro`. The sampled data may have different size according to `xxx`, `eeg` has 5 
 channels per sample, the rest of the sensors return 3 channels data. 
 
 To read sampled data in chunks, you need to specify the chunk size and call `mu.get_xxx_chunk(###)`, replace `xxx` with sensor type
@@ -147,7 +152,7 @@ On MacOSx: Application crashes after running:
 
 ```
 @misc{UVicMUSE,
-  author       = {Bardia Barabadi, Jamieson Fregeau},
+  author       = {Bardia Barabadi},
   title        = {uvic-muse},
   month        = March,
   year         = 2020,

@@ -1,5 +1,15 @@
 import platform
 import pygatt
+import os
+import sys
+
+
+def resource_path(rel_path):
+    if hasattr(sys, '_MEIPASS'):
+        print("Has attr MEIPASS")
+        return os.path.join(sys._MEIPASS, rel_path)
+
+    return os.path.join(os.path.abspath("."), rel_path)
 
 
 def resolve_backend(backend):

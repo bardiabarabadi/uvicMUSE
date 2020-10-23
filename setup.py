@@ -17,7 +17,6 @@ def copy_docs():
 
     copyfile("docs/Header.png", docs_dir + "/Header.png")
     copyfile("docs/README.md", docs_dir + "/README.md")
-    copyfile("docs/uvic.ico", docs_dir + "/uvic.ico")
 
 
 copy_docs()
@@ -25,7 +24,7 @@ long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="2.0.1",
+    version="5.0.0",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
@@ -43,22 +42,22 @@ setup(
         "bitstring",
         "pygatt",
         "pandas",
-        "scikit-learn",
         "numpy",
         "seaborn",
         "pexpect",
         "pillow",
-        "kivy",
+        "bleak",
+        "kivy==2.0.0rc4",
         "docutils",
         "pygments",
         "pyserial",
         "esptool",
+        "nest_asyncio",
+        "pylsl==1.10.5",
         'pypiwin32 ; platform_system=="Windows"',
-        'pylsl ; platform_system!="Linux"',
         'kivy.deps.glew ; platform_system=="Windows"',
         'kivy.deps.sdl2 ; platform_system=="Windows"',
         'kivy.deps.gstreamer ; platform_system=="Windows"',
-        'pylsl==1.10.5 ; platform_system=="Linux"'
     ]
     ,
     classifiers=[
