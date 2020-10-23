@@ -24,7 +24,7 @@ long_description = get_long_description()
 
 setup(
     name="uvicmuse",
-    version="2.0.1",
+    version="3.1.0",
     description="Stream and visualize EEG data from the Muse headset.",
     keywords="muse lsl eeg ble neuroscience matlab UDP",
     url="",
