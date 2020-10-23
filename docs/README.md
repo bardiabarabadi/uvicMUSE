@@ -10,7 +10,7 @@ The code relies on [bleak](https://github.com/hbldh/bleak) (macOS) and [pygatt](
 and [pylsl](https://github.com/chkothe/pylsl) for LSL streaming. We highly recommend installing on a virtual environment (VE). You can build and manage those VEs using [Anaconda](https://www.anaconda.com/), 
 the instructions to install and setup a conda environment is described [here](https://docs.anaconda.com/anaconda/install/).
 
-**Compatible with Python 3.x**
+**Compatible with Python 3.8+**
 
 _Note: if you run into any issues, first check out out Common Issues
 and then the Issues section of [this](https://github.com/bardiabarabadi/uvicMUSE) repository_
@@ -33,7 +33,7 @@ Transmitted data from _Streamer_ side then can be received and used by the _Rece
 Take a look at this chart below:
 
 
-![Top](image.png)
+![Top](image-01.png)
 
 This project has two sections, first, *UVic MUSE* that connects to MUSE 
 over Bluetooth and streams its data over UDP and LSL.
@@ -54,11 +54,11 @@ open a terminal, and follow these commands:
 **If you don't want to use a virtual environment, use Terminal (Linux and OSx) 
 or Command Prompt (Windows) and skip the optional steps.**
 
-(optinal) Create a new conda environment.
+(optional) Create a new conda environment.
     
-    conda create --name muse_env python=3.7
+    conda create --name muse_env python=3.8
     
-(optinal) Activate conda environment
+(optional) Activate conda environment
     
     conda activate muse_env
     
@@ -70,7 +70,7 @@ Install dependencies
     
 Install UVicMUSE using `pip`
 
-    pip install --force-reinstall uvicmuse==2.0.1 # for Windows & Linux (with dongle)
+    pip install --force-reinstall uvicmuse==3.1.0 # for Windows & Linux (with dongle)
     pip install --force-reinstall uvicmuse==5.0.0 # for macOS (built-in bluetooth)
     
     
