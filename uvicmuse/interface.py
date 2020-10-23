@@ -1,6 +1,6 @@
 import os
 
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
+# os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -19,6 +19,7 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.textinput import TextInput
 from kivy.uix.spinner import Spinner
 from kivy.graphics import Color, Rectangle
+import pkg_resources
 
 from kivy.resources import resource_add_path
 
@@ -53,8 +54,8 @@ class UVicMuse(FloatLayout):
         self.bind(pos=draw_background)
 
         # Create UVic Muse Logo
-        DATA_PATH = resource_path('Header.png')
-        self.img = Image(source=DATA_PATH, allow_stretch=True)
+        DATA_PATH = pkg_resources.resource_filename('uvicmuse', 'docs')
+        self.img = Image(source=os.path.join(DATA_PATH, 'Header.png'), allow_stretch=True)
 
         # Initiate Labels
         self.status_label = Label(
