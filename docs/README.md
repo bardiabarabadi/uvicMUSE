@@ -27,7 +27,7 @@ Transmitted data from _Streamer_ side then can be received and used by the _Rece
 Take a look at this chart below:
 
 
-![Top](image-01.png)
+![Top](image.png)
 
 This project has two sections, first, *UVic MUSE* that connects to MUSE 
 over Bluetooth and streams its data over UDP and LSL.
@@ -64,7 +64,7 @@ Install dependencies
     
 Install UVicMUSE using `pip`
 
-    pip install --upgrade uvicmuse
+    pip install --upgrade uvicmuse==3.1.1
     
 
 
@@ -87,7 +87,7 @@ and typing uvicmuse**
 
 #### GUI: 
 
-![Top](uvicmuse_.png)
+![Top](image-01.png)
 
 #### Streaming Procedure:
 Follow steps shown below to stream the MUSE sensory data. Remember to correctly specify the **Required Entries** variables
