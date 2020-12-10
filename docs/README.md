@@ -71,7 +71,7 @@ Install dependencies
 Install UVicMUSE using `pip`
 
     pip install --force-reinstall uvicmuse==3.1.1 # for Windows & Linux (with dongle)
-    pip install --force-reinstall uvicmuse==5.0.0 # for macOS (built-in bluetooth)
+    pip install --force-reinstall uvicmuse==5.1.0 # for macOS (built-in bluetooth)
     
     
 #### Running UVicMUSE:
@@ -139,6 +139,44 @@ and `###` with the chunk size. The output size, `size(data)`, will be `[chunk_si
 We suggest using multiple instances of `get_xxx_chunk()`, but you can change the buffer size by calling the function below:
     
     mu.set_udp_buffer_size(2048) % 2kB buffer
+
+## Pyhton Library
+ If you wan to use MUSE's sensory data in python, you can use uvicmuse as a python library. Here is how it works:
+ 
+ First you need to import the `MuseWrapper` class into your code. Also, you will going to need the `asyncio` library.
+ 
+    from uvicmuse.MuseWrapper import MuserWrapper as MW
+    import asyncio
+ Now get the event loop using the `get_even_loop` method and pass it to the `MuseWrapper`.
+ 
+    loop = asyncio.get_event_loop()
+    M_wrapper = MW (loop = loop,
+                    target_name = None,
+                    timeout = 10,
+                    max_buff_size = 500) 
+ Let's take a look at all of the entries of the `MuseWrapper`:
+ 
+ **Loop**: The event loop, use get_event_loop to acquire
+ 
+ **target_name**: (optional) Use if you want to connect to a specific device. You can use `"Muse-3BEA"` or `"3BEA"`. Leave this input empty (or `None`) if there is only one device in range. You will get an error if there are more than one devices available and this input is empty.
+ 
+ **timeout**: (optional) The timeout for the search. May need to be increase according to the BT device and/or the BT traffic. 
+ 
+ **max_buff_size**: (optional) The maximum number of samples that to be temporary saved in the internal buffer. Default is 512.
+
+The next step is to search for the target MUSE and connect to it:
+    
+    M_wrapper.search_and_connect() # returnes True if the connection is successful
+    
+Finally you can go ahead and read samples from the MUSE:
+
+    EEG_data = M_wrapper.pull_eeg()
+    PPG_data = M_wrapper.pull_ppg() # Not available in MU-02
+    ACC_data = M_wrapper.pull_acc()
+    GYRO_data = M_wrapper.pull_gyro()
+
+The output is a list of samples each containing 5 (for EEG) or 3 (for others) values followed by a timestamp. The buffers reset automatically when read.
+
 
 ## Issues
 

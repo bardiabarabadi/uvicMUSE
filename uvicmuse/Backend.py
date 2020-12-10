@@ -1,7 +1,7 @@
-from constants import *
-from helper import *
-from MuseBLE import MuseBLE as muse
-from MuseFinder import MuseFinder
+from uvicmuse.constants import *
+from uvicmuse.helper import *
+from uvicmuse.MuseBLE import MuseBLE as muse
+from uvicmuse.MuseFinder import MuseFinder
 # from .constants import *
 # from .helper import *
 # from .MuseBLE import MuseBLE as muse
@@ -224,7 +224,7 @@ class Backend:
             if self.use_lsl:
                 outlet.push_sample(data[:, ii], timestamps[ii])
 
-            if self.use_low_pass or self.use_high_pass and offset == EEG_PORT_OFFSET:  # TODO: Only Filter EEG
+            if self.use_low_pass or self.use_high_pass and offset == EEG_PORT_OFFSET:
                 for i in range(data.shape[0]):
                     data[i, ii], self.filter_z = signal.lfilter(self.filter_b, self.filter_a, [data[i, ii]],
                                                                 zi=self.filter_z)

@@ -1,5 +1,5 @@
 # from .constants import *
-from constants import *
+from uvicmuse.constants import *
 
 import bitstring
 from bleak import BleakClient

@@ -1,7 +1,7 @@
 from bleak import discover
 
 # from .constants import *
-from constants import *
+from uvicmuse.constants import *
 
 class MuseFinder(object):
 

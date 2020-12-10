@@ -1,6 +1,6 @@
 
 
-from interface import runGUI
+from uvicmuse.interface import runGUI
 # from .interface import runGUI
 from importlib import __import__
 def main():

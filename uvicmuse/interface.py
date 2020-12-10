@@ -34,8 +34,8 @@ import asyncio
 import pkg_resources
 
 
-from helper import resource_path
-from constants import *
+from uvicmuse.helper import resource_path
+from uvicmuse.constants import *
 
 # Frontend Test Branch
 # noinspection PyBroadException,PyUnusedLocal
@@ -153,7 +153,7 @@ class UVicMuse(FloatLayout):
         self.stream_button.disabled = True
         self.connect_button.disabled = True
 
-        from Backend import Backend
+        from uvicmuse.Backend import Backend
 
         self.backend = Backend()
 
