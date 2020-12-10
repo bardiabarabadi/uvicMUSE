@@ -70,8 +70,8 @@ Install dependencies
     
 Install UVicMUSE using `pip`
 
-    pip install --force-reinstall uvicmuse==3.1.1 # for Windows & Linux (with dongle)
-    pip install --force-reinstall uvicmuse==5.1.0 # for macOS (built-in bluetooth)
+    pip install --force-reinstall uvicmuse==3.2.0 # for Windows & Linux (with dongle)
+    pip install --force-reinstall uvicmuse==5.2.0 # for macOS (built-in bluetooth)
     
     
 #### Running UVicMUSE:
@@ -177,6 +177,9 @@ Finally you can go ahead and read samples from the MUSE:
 
 The output is a list of samples each containing 5 (for EEG) or 3 (for others) values followed by a timestamp. The buffers reset automatically when read.
 
+To disconnect the MUSE, use:
+
+    M_wrapper.disconnect()
 
 ## Issues
 

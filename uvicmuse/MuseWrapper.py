@@ -28,6 +28,9 @@ class MuseWrapper:
         self.max_buff_len = max_buff_len
         self.loop = loop
 
+    def disconnect(self):
+        self.loop.run_until_complete(self.muse.disconnect())
+
     def search_and_connect(self):
         mf = MuseFinder(add_muse_to_list_callback=None)
         loop = asyncio.get_event_loop()
