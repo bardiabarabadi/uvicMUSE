@@ -476,7 +476,7 @@ class Muse():
                                   callback=self._handle_ppg)
 
         except pygatt.exceptions.BLEError as error:
-            raise PPG_error
+            pass
             # raise Exception('PPG data is not available on this device. PPG is only available on Muse 2')
 
     def _handle_ppg(self, handle, data):
