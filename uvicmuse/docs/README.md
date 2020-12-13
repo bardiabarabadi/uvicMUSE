@@ -70,8 +70,8 @@ Install dependencies
     
 Install UVicMUSE using `pip`
 
-    pip install --force-reinstall uvicmuse==3.2.0 # for Windows & Linux (with dongle)
-    pip install --force-reinstall uvicmuse==5.2.0 # for macOS (built-in bluetooth)
+    pip install --force-reinstall uvicmuse==3.2.2 # for Windows & Linux (with dongle)
+    pip install --force-reinstall uvicmuse==5.2.1 # for macOS (built-in bluetooth)
     
     
 #### Running UVicMUSE:
@@ -145,7 +145,7 @@ We suggest using multiple instances of `get_xxx_chunk()`, but you can change the
  
  First you need to import the `MuseWrapper` class into your code. Also, you will going to need the `asyncio` library.
  
-    from uvicmuse.MuseWrapper import MuserWrapper as MW
+    from uvicmuse.MuseWrapper import MuseWrapper as MW
     import asyncio
  Now get the event loop using the `get_even_loop` method and pass it to the `MuseWrapper`.
  
@@ -153,7 +153,7 @@ We suggest using multiple instances of `get_xxx_chunk()`, but you can change the
     M_wrapper = MW (loop = loop,
                     target_name = None,
                     timeout = 10,
-                    max_buff_size = 500) 
+                    max_buff_len = 500) 
  Let's take a look at all of the entries of the `MuseWrapper`:
  
  **Loop**: The event loop, use get_event_loop to acquire
@@ -177,6 +177,9 @@ Finally you can go ahead and read samples from the MUSE:
 
 The output is a list of samples each containing 5 (for EEG) or 3 (for others) values followed by a timestamp. The buffers reset automatically when read.
 
+To disconnect the MUSE, use:
+
+    M_wrapper.disconnect()
 
 ## Issues
 

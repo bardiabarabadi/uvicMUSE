@@ -287,7 +287,8 @@ class MuseBLE(object):
         # Check if this is the last data in the sequence
         if index == 1:
             if tm != self.last_tm_eeg + 1:
-                print("Missing sample %d : %d" % (tm, self.last_tm_eeg))
+                pass
+                # print("Missing sample %d : %d" % (tm, self.last_tm_eeg))
             self.last_tm_eeg = tm
 
             idxs = np.arange(0, 12) + self.sample_index_eeg
@@ -311,7 +312,7 @@ class MuseBLE(object):
         wait until we get x and call the data callback
         """
 
-        handle = sender-1
+        handle = sender - 1
         timestamp = time()
         index = int((handle - 56) / 3)
         tm, d = self._unpack_ppg_channel(data)
@@ -324,7 +325,8 @@ class MuseBLE(object):
         # last data received
         if handle == 62:
             if tm != self.last_tm_ppg + 1:
-                print("missing sample %d : %d" % (tm, self.last_tm_ppg))
+                pass
+                # print("missing sample %d : %d" % (tm, self.last_tm_ppg))
             self.last_tm_ppg = tm
 
             # calculate index of time samples
@@ -348,7 +350,7 @@ class MuseBLE(object):
         """Handle incoming accelerometer data.
         sampling rate: ~17 x second (3 samples in each message, roughly 50Hz)"""
         if sender != 22:  # handle 0x17
-            print ("ERROR ACC" + str(sender))
+            print("ERROR ACC" + str(sender))
             return
 
         timestamps = [time()] * 3
@@ -365,7 +367,7 @@ class MuseBLE(object):
         """Handle incoming gyroscope data.
         sampling rate: ~17 x second (3 samples in each message, roughly 50Hz)"""
         if sender != 19:  # handle 0x14
-            print ("ERROR GYRO" + str(sender))
+            print("ERROR GYRO" + str(sender))
             return
         timestamps = [time()] * 3
 
@@ -381,7 +383,7 @@ class MuseBLE(object):
         """Handle the telemetry (battery, temperature and stuff) incoming data
         """
         if sender != 26:  # handle 0x1a
-            print ("ERROR TELE" + str(sender))
+            print("ERROR TELE" + str(sender))
             return
         timestamp = time()
 
