@@ -313,7 +313,8 @@ class Muse():
         # last data received
         if handle == 35:
             if tm != self.last_tm + 1:
-                print("missing sample %d : %d" % (tm, self.last_tm))
+                #print("missing sample %d : %d" % (tm, self.last_tm))
+                pass
             self.last_tm = tm
 
             # calculate index of time samples
@@ -497,7 +498,8 @@ class Muse():
         # last data received
         if handle == 62:
             if tm != self.last_tm_ppg + 1:
-                print("missing sample %d : %d" % (tm, self.last_tm_ppg))
+                #print("missing sample %d : %d" % (tm, self.last_tm_ppg))
+                pass
             self.last_tm_ppg = tm
 
             # calculate index of time samples

@@ -47,7 +47,7 @@ class MuseWrapper:
             print("No MUSEs found, please try again or increase the timeout")
             return success
 
-        if self.target_name == None:
+        if self.target_name is None:
             if len(self.all_muses) == 1:
                 self.target_muse = self.all_muses[0]
                 print("No target MUSE specified, one device found. Connecting to " + str(self.get_muse_name()))
@@ -56,10 +56,15 @@ class MuseWrapper:
                 return success
 
         else:
+            found = False
             for d in self.all_muses:
                 if self.target_name in d['name']:
                     print("Target MUSE-" + self.target_name + " found. Attempting to connect...")
                     self.target_muse = d
+                    found = True
+            if found is False:
+                print("Target MUSE NOT found, please try again or increase the timeout")
+                return False
 
         # Connecting
         push_eeg = partial(self._push, offset=EEG_PORT_OFFSET)
