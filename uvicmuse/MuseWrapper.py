@@ -6,6 +6,8 @@ from uvicmuse.helper import *
 import asyncio
 from functools import partial
 
+from pylsl import StreamInfo, StreamOutlet
+
 
 class MuseWrapper:
 
@@ -63,10 +65,16 @@ class MuseWrapper:
                 return False
 
         # Connecting
-        push_eeg = partial(self._push, offset=EEG_PORT_OFFSET)
-        push_ppg = partial(self._push, offset=PPG_PORT_OFFSET)
-        push_acc = partial(self._push, offset=ACC_PORT_OFFSET)
-        push_gyro = partial(self._push, offset=GYRO_PORT_OFFSET)
+
+        eeg_outlet = self._get_eeg_outlet()
+        ppg_outlet = self._get_ppg_outlet()
+        acc_outlet = self._get_acc_outlet()
+        gyro_outlet = self._get_gyro_outlet()
+
+        push_eeg = partial(self._push, outlet=eeg_outlet, offset=EEG_PORT_OFFSET)
+        push_ppg = partial(self._push, outlet=ppg_outlet, offset=PPG_PORT_OFFSET)
+        push_acc = partial(self._push, outlet=acc_outlet, offset=ACC_PORT_OFFSET)
+        push_gyro = partial(self._push, outlet=gyro_outlet, offset=GYRO_PORT_OFFSET)
         self.muse = MuseBLE(client=self.target_muse, callback_control=self._command_callback,
                             callback_acc=push_acc, callback_eeg=push_eeg, callback_gyro=push_gyro,
                             callback_ppg=push_ppg)
@@ -108,10 +116,62 @@ class MuseWrapper:
         self.acc_buff = []
         self.gyro_buff = []
 
-    def _push(self, data, timestamps, offset=0):
+    def get_muse_address(self):
+        return self.muse.address
+
+    def get_muse(self):
+        return self.muse
+
+    def _get_eeg_outlet(self):
+        # Connecting to MUSE
+        eeg_info = StreamInfo('Muse', 'EEG', MUSE_NB_EEG_CHANNELS, MUSE_SAMPLING_EEG_RATE, 'float32',
+                              'Muse%s' % self.get_muse_address())
+        eeg_info.desc().append_child_value("manufacturer", "Muse")
+        eeg_channels = eeg_info.desc().append_child("channels")
+
+        for c in ['TP9', 'AF7', 'AF8', 'TP10', 'Right AUX']:
+            eeg_channels.append_child("channel") \
+                .append_child_value("label", c) \
+                .append_child_value("unit", "microvolts") \
+                .append_child_value("type", "EEG")
+
+        eeg_outlet = StreamOutlet(eeg_info, LSL_EEG_CHUNK)
+
+        return eeg_outlet
+
+    def _get_ppg_outlet(self):
+        # Connecting to MUSE
+        ppg_info = StreamInfo('Muse', 'PPG', MUSE_NB_PPG_CHANNELS, MUSE_SAMPLING_PPG_RATE,
+                              'float32', 'Muse%s' % self.get_muse_address())
+        ppg_info.desc().append_child_value("manufacturer", "Muse")
+
+        ppg_outlet = StreamOutlet(ppg_info, LSL_PPG_CHUNK)
+
+        return ppg_outlet
+
+    def _get_acc_outlet(self):
+        acc_info = StreamInfo('Muse', 'ACC', MUSE_NB_ACC_CHANNELS, MUSE_SAMPLING_ACC_RATE,
+                              'float32', 'Muse%s' % self.get_muse_address())
+        acc_info.desc().append_child_value("manufacturer", "Muse")
+
+        acc_outlet = StreamOutlet(acc_info, LSL_ACC_CHUNK)
+
+        return acc_outlet
+
+    def _get_gyro_outlet(self):
+        gyro_info = StreamInfo('Muse', 'GYRO', MUSE_NB_GYRO_CHANNELS, MUSE_SAMPLING_GYRO_RATE,
+                               'float32', 'Muse%s' % self.get_muse_address())
+        gyro_info.desc().append_child_value("manufacturer", "Muse")
+
+        gyro_outlet = StreamOutlet(gyro_info, LSL_GYRO_CHUNK)
+
+        return gyro_outlet
+
+    def _push(self, data, timestamps, outlet, offset=0):
         for ii in range(data.shape[1]):
             if not is_data_valid(data[:, ii], timestamps[ii]):
                 continue
+            outlet.push_sample(data[:, ii], timestamps[ii])
             if offset == EEG_PORT_OFFSET:
                 to_append_eeg_data = [data[0, ii], data[1, ii], data[2, ii], data[3, ii], data[4, ii],
                                       (timestamps[ii])]
