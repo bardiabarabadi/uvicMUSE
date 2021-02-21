@@ -70,8 +70,8 @@ Install dependencies
     
 Install UVicMUSE using `pip`
 
-    pip install --force-reinstall uvicmuse==3.3.0 # for Windows & Linux (with dongle)
-    pip install --force-reinstall uvicmuse==5.3.0 # for macOS (built-in bluetooth)
+    pip install --force-reinstall uvicmuse==3.3.2 # for Windows & Linux (with dongle)
+    pip install --force-reinstall uvicmuse==5.3.2 # for macOS (built-in bluetooth)
     
     
 #### Running UVicMUSE:

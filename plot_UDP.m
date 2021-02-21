@@ -61,12 +61,12 @@ title('TP10')
 p_22 = subplot(3,2,5);
 hold (p_22, 'on')
 pl_5 = plot(p_22, RAUX);
-title('PPG[0]')
+title('RAUX')
 
 p_23 = subplot(3,2,6);
 hold (p_23, 'on')
 pl_6 = plot(p_23, x);
-title('PPG[1]');
+title('TIME');
 
 i=0;
 udp_sock_eeg.ByteOrder = 'littleEndian';

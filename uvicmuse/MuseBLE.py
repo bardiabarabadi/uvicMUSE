@@ -8,6 +8,7 @@ from bleak.exc import BleakError
 import numpy as np
 from time import time
 import asyncio
+from kivy.logger import Logger
 
 
 def ppg_error():
@@ -232,7 +233,7 @@ class MuseBLE(object):
 
     def _init_sample_eeg(self):
         self.timestamps_eeg = np.zeros(5)
-        self.data_eeg = np.zeros((5, 12))
+        self.data_eeg = np.ones((5, 12))
 
     def _init_sample_ppg(self):
         self.timestamps_ppg = np.zeros(3)
@@ -274,10 +275,10 @@ class MuseBLE(object):
             self._init_sample_control()
 
     def _handle_eeg(self, sender, packet):
-        index = int((sender - 32) / 3)
+        index = int((sender - 31) / 3)
         timestamp = time()
         tm, d = self._unpack_eeg_channel(packet)
-
+        # Logger.info('this is what eeg received: ' + str(sender) + 'data: ' + str(d))
         if self.last_tm_eeg == 0:
             self.last_tm_eeg = tm - 1
 
@@ -285,7 +286,7 @@ class MuseBLE(object):
         self.timestamps_eeg[index] = timestamp
 
         # Check if this is the last data in the sequence
-        if index == 1:
+        if sender == 34:
             if tm != self.last_tm_eeg + 1:
                 pass
                 # print("Missing sample %d : %d" % (tm, self.last_tm_eeg))
