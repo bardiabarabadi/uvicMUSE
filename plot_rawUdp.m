@@ -88,12 +88,13 @@ while (ishandle(dialogBox))
         end
         
         
-        prv_A = uint64(A(6)*256000);
+        prv_A = uint64(A(6));
         disp(prv_A);
 %         disp (datetime(prv_A*256000,'ConvertFrom','epochtime','TicksPerSecond',1e9,'Format','dd-MMM-yyyy HH:mm:ss.SSSSSSSSS'));
         display_arr(:,1:end-1) = display_arr(:,2:end);
         display_arr(1:4,end) = A(1:4);
-        display_arr(6,end) = prv_A;
+        c=clock;
+        display_arr(6,end) = c(6);
         
         if (~mod(i,150)) 
             send(D, display_arr);

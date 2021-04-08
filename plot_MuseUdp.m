@@ -66,7 +66,8 @@ while (ishandle(dialogBox))
         display_arr(:,1:end-1) = display_arr(:,2:end);
         display_arr(1:4,end) = data(1:4);
         display_arr(5,end) = -1;
-        display_arr(6,end) = timestamp;
+        c=clock;
+        display_arr(6,end) = c(6);
         
         if (~mod(i,150)) % Calling the updatesurface function every 150 samples
             send(D, display_arr);
