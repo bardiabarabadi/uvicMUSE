@@ -296,7 +296,7 @@ class MuseBLE(object):
             self.sample_index_eeg += 12
 
             # timestamps are extrapolated backwards based on sampling rate and current time
-            timestamps = self.reg_params[1] * idxs + self.reg_params[0]
+            timestamps = (self.reg_params[1] * idxs + self.reg_params[0] ) * 1000000
 
             # push data
             self.callback_eeg(self.data_eeg, timestamps)
