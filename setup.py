@@ -54,6 +54,7 @@ setup(
         "esptool",
         "nest_asyncio",
         "pylsl==1.10.5",
+        'scipy'
         'pypiwin32 ; platform_system=="Windows"',
         'kivy.deps.glew ; platform_system=="Windows"',
         'kivy.deps.sdl2 ; platform_system=="Windows"',
