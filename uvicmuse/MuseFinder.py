@@ -17,7 +17,7 @@ class MuseFinder(object):
             # search for muses timeout/2 times, 2 seconds each time
             devices = await discover(timeout=2)
             for d in devices:
-                if MUSE_NAME in d.name and not self._is_already_found(newly_found_muse=d):
+                if d.name is not None and MUSE_NAME in d.name and not self._is_already_found(newly_found_muse=d):
                     self.muses.append(d)
                     if self.add_muse_to_list_callback is not None:
                         self.add_muse_to_list_callback(d)
